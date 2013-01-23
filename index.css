@@ -1,0 +1,30 @@
+html {
+  background: #384244;
+  color: #fff;
+  font: 12px MozTT, sans-serif;
+}
+
+.action-header {
+  margin: 10px;
+}
+
+.action-bar {
+  border: 1px solid #000;
+  border-radius: 5px;
+  -moz-box-sizing: border-box;
+  box-sizing: border-box;
+  padding: 4px 8px;
+  width: 100%;
+}
+
+.action-matches {
+  border-top: 1px solid #596068;
+  list-style: none;
+  margin: 10px 0;
+  padding: 0;
+}
+
+.action-matches li {
+  border-bottom: 1px solid #596068;
+  padding: 10px;
+}
