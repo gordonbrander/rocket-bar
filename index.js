@@ -23,19 +23,22 @@ var kicks = require('./kicks.js'),
 // Supporting functions
 // ----------------------------------------------------------------------------
 
-// Make a string safe for input into RegExp() constructor.
 function escStringForRegExp(string) {
+  // Make a string safe for input into RegExp() constructor.
   return string.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
 }
 
-// Create a regex object from a string.
-// Escapes the string, making it safe for RegExp constructor, then constructs
-// a new Regex object.
 function createRegExpFromString(string, flags) {
+  // Create a regex object from a string.
+  // Escapes the string, making it safe for RegExp constructor, then constructs
+  // a new Regex object.
   return new RegExp(escStringForRegExp(string), flags);
 }
 
 function getSearchSerialization(noun) {
+  // Return the searchable field of the object. This function is used to
+  // map nouns before grepping. It's also a useful abstraction in case we
+  // change the searchable field mechanism in future.
   return noun.searchable;
 }
 
