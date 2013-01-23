@@ -219,16 +219,6 @@ var actionBarValuesOverTime = map(actionBarPressesOverTime, function(event) {
   return event.target.value;
 });
 
-// Make search domain a simple list of strings to search.
-var searchFields = map(searchDomain, function (noun) {
-  return noun.searchable;
-})
-
-// Grep list of strings.
-var greppedNounListsOverTime = map(actionBarValuesOverTime, function (value) {
-  return grepReduce(value, searchFields);
-});
-
 // "Objects" in the sense of "direct object of a verb", not in the
 // compsci sense.
 // <http://www.grammar-monster.com/lessons/verbs.htm>
