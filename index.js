@@ -9,7 +9,8 @@ var merge = require('reducers/merge');
 var fold = require('reducers/fold');
 var open = require('dom-reduce/event');
 var print = require('reducers/debug/print');
-var grepReduce = require('grep-reduce');
+var zip = require('zip-reduce');
+var grep = require('grep-reduce');
 var kicks = require('./kicks.js'),
     apply = kicks.apply,
     compose = kicks.compose,
@@ -32,6 +33,10 @@ function escStringForRegExp(string) {
 // a new Regex object.
 function createRegExpFromString(string, flags) {
   return new RegExp(escStringForRegExp(string), flags);
+}
+
+function getSearchSerialization(noun) {
+  return noun.searchable;
 }
 
 // Create a lambda form of `test()` method. Requires a RegExp object as it's
@@ -192,7 +197,7 @@ var verbsWithSearchableField = map(VERBS, function (verb) {
   });
 });
 
-var searchDomain = merge([
+var allNouns = merge([
   contactsWithSearchableField,
   artistsWithSearchableField,
   verbsWithSearchableField
@@ -219,14 +224,9 @@ var actionBarValuesOverTime = map(actionBarPressesOverTime, function(event) {
   return event.target.value;
 });
 
-// Make search domain a simple list of strings to search.
-var searchFields = map(searchDomain, function (noun) {
-  return noun.searchable;
-})
-
 // Grep list of strings.
-var greppedNounListsOverTime = map(actionBarValuesOverTime, function (value) {
-  return grepReduce(value, searchFields);
+var scoredNounListsOverTime = map(actionBarValuesOverTime, function (value) {
+  return grep(value, allNouns, getSearchSerialization);
 });
 
 // "Objects" in the sense of "direct object of a verb", not in the
@@ -237,7 +237,7 @@ var matchedNounListsOverTime = map(actionBarValuesOverTime, function(value) {
   var valueRegExp = createRegExpFromString(value, 'i');
   // Create a filter function by filling the first parameter of
   // `test` function with RegExp object.
-  return filter(searchDomain, function testNoun(noun) {
+  return filter(allNouns, function testNoun(noun) {
     return test(valueRegExp, noun.searchable);
   });
 });
@@ -259,6 +259,6 @@ fold(matchedNounListsOverTime, function(matches) {
   matchesContainerEl.innerHTML = htmlString;
 }, '');
 
-fold(greppedNounListsOverTime, function (nouns) {
+fold(scoredNounListsOverTime, function (nouns) {
   print(nouns);
 });
