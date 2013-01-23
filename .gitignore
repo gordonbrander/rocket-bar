@@ -1,6 +1,9 @@
 # Ignore built files
 browserify-combined.js
 
+# Ignore node_modules folder
+node_modules/
+
 # Ignore Vim swap files.
 *.swp
 
