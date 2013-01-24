@@ -27,28 +27,12 @@ var kicks = require('./kicks.js'),
 // Supporting functions
 // ----------------------------------------------------------------------------
 
-function escStringForRegExp(string) {
-  // Make a string safe for input into RegExp() constructor.
-  return string.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
-}
-
-function createRegExpFromString(string, flags) {
-  // Create a regex object from a string.
-  // Escapes the string, making it safe for RegExp constructor, then constructs
-  // a new Regex object.
-  return new RegExp(escStringForRegExp(string), flags);
-}
-
 function getSearchSerialization(noun) {
   // Return the searchable field of the object. This function is used to
   // map nouns before grepping. It's also a useful abstraction in case we
   // change the searchable field mechanism in future.
   return noun.searchable;
 }
-
-// Create a lambda form of `test()` method. Requires a RegExp object as it's
-// first argument.
-var test = lambda(RegExp.prototype.test);
 
 // FakeDB
 // ----------------------------------------------------------------------------
@@ -236,35 +220,20 @@ var scoredNounListsOverTime = map(actionBarValuesOverTime, function (value) {
   return grep(value, allNouns, getSearchSerialization);
 });
 
-// "Objects" in the sense of "direct object of a verb", not in the
-// compsci sense.
-// <http://www.grammar-monster.com/lessons/verbs.htm>
-var matchedNounListsOverTime = map(actionBarValuesOverTime, function(value) {
-  // Create a regex object to match for value (case insensitive)
-  var valueRegExp = createRegExpFromString(value, 'i');
-  // Create a filter function by filling the first parameter of
-  // `test` function with RegExp object.
-  return filter(allNouns, function testNoun(noun) {
-    return test(valueRegExp, noun.searchable);
-  });
-});
-
 // Find the matches container.
 var matchesContainerEl = document.getElementById('matches');
 
-// Find clicks on individual matches in the collection.
-var matchClicksOverTime = filter(clicksOverTime, function (event) {
-  return event.target.parentElement === matchesContainerEl;
-});
-
 // Begin folding the value... kicks off processing.
-fold(matchedNounListsOverTime, function(matches) {
-  var htmlString = fold(matches, function (noun, html) {
-    return html + '<li id="' + noun.id + '">' + noun.searchable + '</li>';
+fold(scoredNounListsOverTime, function(matches) {
+  var eventualHtmlString = fold(matches, function (pair, html) {
+    var noun = pair[0];
+    return html + '<li>' + noun.searchable + '</li>';
   }, '');
 
-  matchesContainerEl.innerHTML = htmlString;
-}, '');
+  fold(eventualHtmlString, function (htmlString) {
+    return matchesContainerEl.innerHTML = htmlString;
+  });
+});
 
 fold(scoredNounListsOverTime, function (nouns) {
   print(nouns);
