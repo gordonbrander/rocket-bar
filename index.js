@@ -34,10 +34,14 @@ function getSearchSerialization(action) {
   return action.searchable;
 }
 
+function getDisplaySerialization(action) {
+  return action.display;
+}
+
 // FakeDB
 // ----------------------------------------------------------------------------
 
-var CONTACTS = map([
+var NAMES = [
   'Matt Helm',
   'Hal Ambler',
   'Ali Imran',
@@ -71,7 +75,9 @@ var CONTACTS = map([
   'Mortadelo Pi',
   'Filemón Pi',
   'Maria Hill'
-], function(name) {
+];
+
+var CONTACTS_ACTIONS = map(NAMES, function(name) {
   // Generate mock contact structure...
   return {
     fn: name,
@@ -86,11 +92,34 @@ var CONTACTS = map([
       postal_code: '',
       country_name: ''
     },
-    note: ''
-  }
+    note: '',
+    display: name,
+    searchable: name
+  };
 });
 
-var ARTISTS = map([
+var DIALER_ACTIONS = map(NAMES, function(name) {
+  return {
+    fn: name,
+    app: 'dialer.gaiamobile.org',
+    tel: '(555) 555-5555',
+    display: name,
+    searchable: (name + ' call dial')
+  };
+});
+
+var MESSAGE_ACTIONS = map(NAMES, function(name) {
+  // Generate mock contact structure...
+  return {
+    fn: name,
+    app: 'messages.gaiamobile.org',
+    tel: '(555) 555-5555',
+    display: name,
+    searchable: (name + ' sms mms msg txt text')
+  };
+});
+
+var ARTIST_ACTIONS = map([
   'The Album Leaf',
   'Ali Farka Toure',
   'Amiina',
@@ -120,78 +149,20 @@ var ARTISTS = map([
   return {
     fn: artistName,
     type: 'artist',
-    app: 'music.gaiamobile.org'
-  }
-});
-
-// "Direct Objects" in the sense of "direct object of a verb", not in the
-// compsci sense.
-// <http://www.grammar-monster.com/lessons/verbs.htm>
-var VERBS = [
-  { 
-    verb: 'play',
-    noun: 'music.gaiamobile.org' 
-  },
-  {
-    verb: 'search',
-    noun: '*'
-  },
-  {
-    verb: 'web',
-    noun: '*'
-  },
-  {
-    verb: 'date',
-    noun: 'calendar.gaiamobile.org'
-  },
-  {
-    verb: 'txt',
-    noun: 'contacts.gaiamobile.org'
-  },
-  {
-    verb: 'msg',
-    noun: 'contacts.gaiamobile.org'
-  },
-  {
-    verb: 'sms',
-    noun: 'contacts.gaiamobile.org'
-  },
-  {
-    verb: 'call',
-    noun: 'contacts.gaiamobile.org'
-  }
-];
-
-// Action bar token index setup
-// ----------------------------------------------------------------------------
-//
-// Extend data structures with a "searchable" field that contains
-// the data relevant to search context.
-
-// Extend contacts with "search" field. This is the field that will be matched
-// against text in the action bar.
-var contactsWithSearchableField = map(CONTACTS, function (contact) {
-  return extend({}, contact, {
-    searchable: contact.fn
-  });
-});
-
-var artistsWithSearchableField = map(ARTISTS, function (artist) {
-  return extend({}, artist, {
-    searchable: artist.fn
-  });
-});
-
-var verbsWithSearchableField = map(VERBS, function (verb) {
-  return extend({}, verb, {
-    searchable: verb.verb
-  });
+    app: 'music.gaiamobile.org',
+    display: artistName,
+    // The text field that is searched with Grep.
+    // Generally speaking this should be the subject plus a few
+    // verb keywords.
+    searchable: (artistName + ' play listen music')
+  };
 });
 
 var allActions = merge([
-  contactsWithSearchableField,
-  artistsWithSearchableField,
-  verbsWithSearchableField
+  CONTACTS_ACTIONS,
+  MESSAGE_ACTIONS,
+  DIALER_ACTIONS,
+  ARTIST_ACTIONS
 ]);
 
 // Control flow logic
@@ -202,16 +173,13 @@ var doc = document.documentElement;
 // Catch all bubbled keypress events.
 var keypressesOverTime = open(doc, 'keyup');
 
-// Catch all bubbled click events.
-var clicksOverTime = open(doc, 'click');
-
 // We're only interested in events on the action bar.
-var actionBarPressesOverTime = filter(keypressesOverTime, function(event) {
+var actionBarPressesOverTime = filter(keypressesOverTime, function (event) {
   return event.target.id === 'action-bar';
 });
 
 // Get the list of values in the action bar over time.
-var actionBarValuesOverTime = map(actionBarPressesOverTime, function(event) {
+var actionBarValuesOverTime = map(actionBarPressesOverTime, function (event) {
   return event.target.value;
 });
 
@@ -223,11 +191,15 @@ var scoredActionListsOverTime = map(actionBarValuesOverTime, function (value) {
 // Find the matches container.
 var matchesContainerEl = document.getElementById('matches');
 
+var limitedActionListsOverTime = map(scoredActionListsOverTime, function (matches) {
+  return take(matches, 20);
+});
+
 // Begin folding the value... kicks off processing.
 fold(scoredActionListsOverTime, function(matches) {
   var eventualHtmlString = fold(matches, function (pair, html) {
     var action = pair[0];
-    return html + '<li class="">' + action.searchable + '</li>';
+    return html + '<li class="">' + getDisplaySerialization(action) + '</li>';
   }, '');
 
   fold(eventualHtmlString, function (htmlString) {
@@ -235,7 +207,6 @@ fold(scoredActionListsOverTime, function(matches) {
   });
 });
 
-fold(scoredActionListsOverTime, function (actions) {
-  print(actions);
+fold(scoredActionListsOverTime, function (matches) {
+  print(matches);
 });
-
