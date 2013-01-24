@@ -103,7 +103,7 @@ var DIALER_ACTIONS = map(NAMES, function(name) {
     fn: name,
     app: 'dialer.gaiamobile.org',
     tel: '(555) 555-5555',
-    display: name,
+    display: ('Call ' + name),
     searchable: (name + ' call dial')
   };
 });
@@ -114,7 +114,7 @@ var MESSAGE_ACTIONS = map(NAMES, function(name) {
     fn: name,
     app: 'messages.gaiamobile.org',
     tel: '(555) 555-5555',
-    display: name,
+    display: 'SMS ' + name,
     searchable: (name + ' sms mms msg txt text')
   };
 });
@@ -150,7 +150,7 @@ var ARTIST_ACTIONS = map([
     fn: artistName,
     type: 'artist',
     app: 'music.gaiamobile.org',
-    display: artistName,
+    display: 'Play ' + artistName,
     // The text field that is searched with Grep.
     // Generally speaking this should be the subject plus a few
     // verb keywords.
