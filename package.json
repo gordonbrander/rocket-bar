@@ -15,7 +15,8 @@
     "mocha": "*",
     "browserify-server": "2.1.x",
     "wr": "1.2.x",
-    "live-reload": "0.2.x"
+    "live-reload": "0.2.x",
+    "zip-reduce": "~0.1.0"
   },
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha --reporter spec",

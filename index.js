@@ -9,7 +9,8 @@ var merge = require('reducers/merge');
 var fold = require('reducers/fold');
 var open = require('dom-reduce/event');
 var print = require('reducers/debug/print');
-var grepReduce = require('grep-reduce');
+var zip = require('zip-reduce');
+var grep = require('grep-reduce');
 var kicks = require('./kicks.js'),
     apply = kicks.apply,
     compose = kicks.compose,
@@ -22,16 +23,23 @@ var kicks = require('./kicks.js'),
 // Supporting functions
 // ----------------------------------------------------------------------------
 
-// Make a string safe for input into RegExp() constructor.
 function escStringForRegExp(string) {
+  // Make a string safe for input into RegExp() constructor.
   return string.replace(/[\-\[\]{}()*+?.,\\\^$|#\s]/g, "\\$&");
 }
 
-// Create a regex object from a string.
-// Escapes the string, making it safe for RegExp constructor, then constructs
-// a new Regex object.
 function createRegExpFromString(string, flags) {
+  // Create a regex object from a string.
+  // Escapes the string, making it safe for RegExp constructor, then constructs
+  // a new Regex object.
   return new RegExp(escStringForRegExp(string), flags);
+}
+
+function getSearchSerialization(noun) {
+  // Return the searchable field of the object. This function is used to
+  // map nouns before grepping. It's also a useful abstraction in case we
+  // change the searchable field mechanism in future.
+  return noun.searchable;
 }
 
 // Create a lambda form of `test()` method. Requires a RegExp object as it's
@@ -192,7 +200,7 @@ var verbsWithSearchableField = map(VERBS, function (verb) {
   });
 });
 
-var searchDomain = merge([
+var allNouns = merge([
   contactsWithSearchableField,
   artistsWithSearchableField,
   verbsWithSearchableField
@@ -219,6 +227,11 @@ var actionBarValuesOverTime = map(actionBarPressesOverTime, function(event) {
   return event.target.value;
 });
 
+// Grep list of strings.
+var scoredNounListsOverTime = map(actionBarValuesOverTime, function (value) {
+  return grep(value, allNouns, getSearchSerialization);
+});
+
 // "Objects" in the sense of "direct object of a verb", not in the
 // compsci sense.
 // <http://www.grammar-monster.com/lessons/verbs.htm>
@@ -227,7 +240,7 @@ var matchedNounListsOverTime = map(actionBarValuesOverTime, function(value) {
   var valueRegExp = createRegExpFromString(value, 'i');
   // Create a filter function by filling the first parameter of
   // `test` function with RegExp object.
-  return filter(searchDomain, function testNoun(noun) {
+  return filter(allNouns, function testNoun(noun) {
     return test(valueRegExp, noun.searchable);
   });
 });
@@ -249,6 +262,7 @@ fold(matchedNounListsOverTime, function(matches) {
   matchesContainerEl.innerHTML = htmlString;
 }, '');
 
-fold(greppedNounListsOverTime, function (nouns) {
+fold(scoredNounListsOverTime, function (nouns) {
   print(nouns);
 });
+
