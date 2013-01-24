@@ -27,11 +27,11 @@ var kicks = require('./kicks.js'),
 // Supporting functions
 // ----------------------------------------------------------------------------
 
-function getSearchSerialization(noun) {
+function getSearchSerialization(action) {
   // Return the searchable field of the object. This function is used to
-  // map nouns before grepping. It's also a useful abstraction in case we
+  // map actions before grepping. It's also a useful abstraction in case we
   // change the searchable field mechanism in future.
-  return noun.searchable;
+  return action.searchable;
 }
 
 // FakeDB
@@ -188,7 +188,7 @@ var verbsWithSearchableField = map(VERBS, function (verb) {
   });
 });
 
-var allNouns = merge([
+var allActions = merge([
   contactsWithSearchableField,
   artistsWithSearchableField,
   verbsWithSearchableField
@@ -216,18 +216,18 @@ var actionBarValuesOverTime = map(actionBarPressesOverTime, function(event) {
 });
 
 // Grep list of strings.
-var scoredNounListsOverTime = map(actionBarValuesOverTime, function (value) {
-  return grep(value, allNouns, getSearchSerialization);
+var scoredActionListsOverTime = map(actionBarValuesOverTime, function (value) {
+  return grep(value, allActions, getSearchSerialization);
 });
 
 // Find the matches container.
 var matchesContainerEl = document.getElementById('matches');
 
 // Begin folding the value... kicks off processing.
-fold(scoredNounListsOverTime, function(matches) {
+fold(scoredActionListsOverTime, function(matches) {
   var eventualHtmlString = fold(matches, function (pair, html) {
-    var noun = pair[0];
-    return html + '<li>' + noun.searchable + '</li>';
+    var action = pair[0];
+    return html + '<li class="">' + action.searchable + '</li>';
   }, '');
 
   fold(eventualHtmlString, function (htmlString) {
@@ -235,7 +235,7 @@ fold(scoredNounListsOverTime, function(matches) {
   });
 });
 
-fold(scoredNounListsOverTime, function (nouns) {
-  print(nouns);
+fold(scoredActionListsOverTime, function (actions) {
+  print(actions);
 });
 
