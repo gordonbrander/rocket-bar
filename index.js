@@ -38,6 +38,10 @@ function getDisplaySerialization(action) {
   return action.display;
 }
 
+function escStringForClassname(string) {
+  return string.replace(/\~|\!|\@|\$|\%|\^|\&|\*|\(|\)|\_|\+|\-|\=|\,|\.|\/|\'|\;|\:|\"|\?|\>|\<|\[|\]|\\|\{|\}|\||\`|\#/g, '-');
+}
+
 // FakeDB
 // ----------------------------------------------------------------------------
 
@@ -199,7 +203,7 @@ var limitedActionListsOverTime = map(scoredActionListsOverTime, function (matche
 fold(scoredActionListsOverTime, function(matches) {
   var eventualHtmlString = fold(matches, function (pair, html) {
     var action = pair[0];
-    return html + '<li class="">' + getDisplaySerialization(action) + '</li>';
+    return html + '<li class="action-item ' + escStringForClassname(action.app) + '">' + getDisplaySerialization(action) + '</li>';
   }, '');
 
   fold(eventualHtmlString, function (htmlString) {
