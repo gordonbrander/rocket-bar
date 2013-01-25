@@ -8,7 +8,8 @@
     "reducers": "2.0.x",
     "reducible": "1.0.x",
     "dom-reduce": "1.0.x",
-    "grep-reduce": "0.2.0"
+    "grep-reduce": "0.2.0",
+    "functional": "~1.0.0"
   },
   "devDependencies": {
     "chai": "*",
@@ -20,7 +21,7 @@
   },
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha --reporter spec",
-    "browserify": "browserify --watch --debug ./index.js --outfile ./browserify-combined.js",
+    "browserify": "browserify --exports require --watch --debug ./index.js --outfile ./browserify-combined.js",
     "prototype": "make prototype"
   }
 }
