@@ -1,0 +1,42 @@
+[
+  {
+    "id": "dialer.gaiamobile.org",
+    "actions": [
+      {
+        "names": ["dial", "call"],
+        "params": ["contact"],
+        "caption": "Call %"
+      }
+    ]
+  },
+  {
+    "id": "messages.gaiamobile.org",
+    "actions": [
+      {
+        "names": ["sms", "mms", "msg", "txt", "text", "message"],
+        "params": ["contact", "message"],
+        "caption": "SMS %"
+      }
+    ]
+  },
+  {
+    "id": "music.gaiamobile.org",
+    "actions": [
+      {
+        "names": ["play", "listen", "music"],
+        "params": ["artist"],
+        "caption": "Play %"
+      }
+    ]
+  },
+  {
+    "id": "contacts.gaiamobile.org",
+    "actions": [
+      {
+        "names": [""],
+        "params": ["contact"],
+        "caption": "%"
+      }
+    ]
+  }
+]
