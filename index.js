@@ -15,13 +15,14 @@ var open = require('dom-reduce/event');
 var print = require('reducers/debug/print');
 var zip = require('zip-reduce');
 var grep = require('grep-reduce');
+var compose = require('functional/compose')
+var partial = require('functional/partial')
+
 var kicks = require('./kicks.js'),
     apply = kicks.apply,
-    compose = kicks.compose,
     slice = kicks.slice,
     reverse = kicks.reverse,
     lambda = kicks.lambda,
-    fill = kicks.fill,
     extend = kicks.extend;
 
 // Supporting functions
@@ -183,34 +184,42 @@ var actionBarPressesOverTime = filter(keypressesOverTime, function (event) {
 });
 
 // Get the list of values in the action bar over time.
-var actionBarValuesOverTime = map(actionBarPressesOverTime, function (event) {
+var searchQuery = map(actionBarPressesOverTime, function (event) {
   return event.target.value;
 });
 
 // Grep list of strings.
-var scoredActionListsOverTime = map(actionBarValuesOverTime, function (value) {
+var queryResult = map(searchQuery, function (value) {
   return grep(value, allActions, getSearchSerialization);
 });
 
-// Find the matches container.
-var matchesContainerEl = document.getElementById('matches');
+function renderActions(input, target) {
+  var template = target.ownerDocument.createElement("li")
+  fold(input, function(actions, rendered) {
+    // reset view (probably instead of removing it would be better to move
+    // it down and dim a little to make it clear it's history and not a match.
+    target.innerHTML = ""
+    fold(actions, function(pair, rendered) {
+      var action = pair[0]
+      var score = pair[1]
 
-var limitedActionListsOverTime = map(scoredActionListsOverTime, function (matches) {
-  return take(matches, 20);
-});
+      var view = template.cloneNode(true)
+      view.className = "action-item " + escStringForClassname(action.app)
+      view.textContent = getDisplaySerialization(action)
 
-// Begin folding the value... kicks off processing.
-fold(scoredActionListsOverTime, function(matches) {
-  var eventualHtmlString = fold(matches, function (pair, html) {
-    var action = pair[0];
-    return html + '<li class="action-item ' + escStringForClassname(action.app) + '">' + getDisplaySerialization(action) + '</li>';
-  }, '');
+      // TODO: We should do binary search instead, but we
+      // can optimize this later.
+      rendered.push(score)
+      rendered = rendered.sort().reverse()
+      var index = rendered.lastIndexOf(score)
+      var prevous = target.children[index]
 
-  fold(eventualHtmlString, function (htmlString) {
-    return matchesContainerEl.innerHTML = htmlString;
-  });
-});
+      if (prevous) target.insertBefore(view, prevous)
+      else target.appendChild(view)
 
-fold(scoredActionListsOverTime, function (matches) {
-  print(matches);
-});
+      return rendered
+    }, [])
+  })
+}
+
+renderActions(queryResult,  document.getElementById('matches'))
