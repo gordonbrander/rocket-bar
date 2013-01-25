@@ -190,7 +190,8 @@ var searchQuery = map(actionBarPressesOverTime, function (event) {
 
 // Grep list of strings.
 var queryResult = map(searchQuery, function (value) {
-  return grep(value, allActions, getSearchSerialization);
+  var pattern = value.split(/\s+/).join("[^\\s]* ")
+  return grep(pattern, allActions, getSearchSerialization);
 });
 
 function renderActions(input, target) {
