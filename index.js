@@ -9,14 +9,19 @@
 
 var filter = require('reducers/filter');
 var map = require('reducers/map');
+var expand = require('reducers/expand');
+var concat = require('reducers/concat');
 var merge = require('reducers/merge');
 var fold = require('reducers/fold');
 var open = require('dom-reduce/event');
 var print = require('reducers/debug/print');
 var zip = require('zip-reduce');
 var grep = require('grep-reduce');
-var compose = require('functional/compose')
-var partial = require('functional/partial')
+var compose = require('functional/compose');
+var partial = require('functional/partial');
+var field = require('oops/field');
+var query = require('oops/query');
+var dropRepeats = require('transducer/drop-repeats');
 
 var kicks = require('./kicks.js'),
     apply = kicks.apply,
@@ -25,150 +30,84 @@ var kicks = require('./kicks.js'),
     lambda = kicks.lambda,
     extend = kicks.extend;
 
+
+var apps = require('./assets/apps.json');
+var contacts = require('./assets/contacts.json');
+var music = require('./assets/music.json');
+
+var SOQ = new String('Start of query');
+
+// Create live stream of all possible actions paired with verbs
+// these actions recognize.
+var actionsByVerb = expand(apps, function(app) {
+  return expand(app.actions, function(action) {
+    return map(action.names, function(name) {
+      return { name: name, action: action, app: app }
+    })
+  })
+})
+
+// Create live stream of all possible actions paired with types
+// of nouns they can do actions on.
+var actionsByType = expand(apps, function(app) {
+  return expand(app.actions, function(action) {
+    return map(action.params, function(type) {
+      return { type: type, action: action, app: app }
+    })
+  })
+})
+
+print(actionsByType)
+
+// All the data available, probably interface will need to be different
+// likely application should define hooks for nouns they can produce, such
+// that services could be easily incorporated. For now only thing we really
+// care about is `serialized` property that search will be performed over.
+var data = {
+  artist: map(music, function(name) {
+    return {
+      artist: name,
+      serialized: name
+    }
+  }),
+  contact: map(contacts, function(name) {
+    return {
+      serialized: name,
+      name: name,
+      org: '',
+      tel: '',
+      url: '',
+      adr: {
+        street_address: '',
+        locality: '',
+        region: '',
+        postal_code: '',
+        country_name: ''
+      },
+      note: ''
+    }
+  })
+}
+
+// Live stream of all the noun data paired with types.
+var nouns = expand(Object.keys(data), function(type) {
+  return map(data[type], function(noun) {
+    return { type: type, noun: noun }
+  })
+})
+
 // Supporting functions
 // ----------------------------------------------------------------------------
 
-function getSearchSerialization(action) {
-  // Return the searchable field of the object. This function is used to
-  // map actions before grepping. It's also a useful abstraction in case we
-  // change the searchable field mechanism in future.
-  return action.searchable;
-}
-
-function getDisplaySerialization(action) {
-  return action.display;
+// Takes action object and input for that action and returns string
+// representing caption for the element rendered.
+function compileCaption(action, input) {
+  return action.caption.replace('%', input.serialized);
 }
 
 function escStringForClassname(string) {
   return string.replace(/\~|\!|\@|\$|\%|\^|\&|\*|\(|\)|\_|\+|\-|\=|\,|\.|\/|\'|\;|\:|\"|\?|\>|\<|\[|\]|\\|\{|\}|\||\`|\#/g, '-');
 }
-
-// FakeDB
-// ----------------------------------------------------------------------------
-
-var NAMES = [
-  'Matt Helm',
-  'Hal Ambler',
-  'Ali Imran',
-  'Jane Blonde',
-  'Basil Argyros',
-  'Modesty Blaise',
-  'Sir Alan Blunt',
-  'James Bond',
-  'Felix Leiter',
-  'Nancy Drew',
-  'Sherlock Holmes',
-  'Jason Bourne',
-  'Tim Donohue',
-  'Sam Fisher',
-  'Stephen Metcalfe',
-  'Jack Ryan',
-  'Nick Fury',
-  'Ada Wong',
-  'Jack Bauer',
-  'Sydney Bristow',
-  'Ethan Hunt',
-  'Wyman Ford',
-  'Nick Carter-Killmaster',
-  'Johnny Fedora',
-  'Tamara Knight',
-  'Mitch Rapp',
-  'Michael Jagger',
-  'George Smiley',
-  'Simon Templar',
-  'Philip Quest',
-  'Mortadelo Pi',
-  'Filemón Pi',
-  'Maria Hill'
-];
-
-var CONTACTS_ACTIONS = map(NAMES, function(name) {
-  // Generate mock contact structure...
-  return {
-    fn: name,
-    app: 'contacts.gaiamobile.org',
-    org: '',
-    tel: '',
-    url: '',
-    adr: {
-      street_address: '',
-      locality: '',
-      region: '',
-      postal_code: '',
-      country_name: ''
-    },
-    note: '',
-    display: name,
-    searchable: name
-  };
-});
-
-var DIALER_ACTIONS = map(NAMES, function(name) {
-  return {
-    fn: name,
-    app: 'dialer.gaiamobile.org',
-    tel: '(555) 555-5555',
-    display: ('Call ' + name),
-    searchable: (name + ' call dial')
-  };
-});
-
-var MESSAGE_ACTIONS = map(NAMES, function(name) {
-  // Generate mock contact structure...
-  return {
-    fn: name,
-    app: 'messages.gaiamobile.org',
-    tel: '(555) 555-5555',
-    display: 'SMS ' + name,
-    searchable: (name + ' sms mms msg txt text')
-  };
-});
-
-var ARTIST_ACTIONS = map([
-  'The Album Leaf',
-  'Ali Farka Toure',
-  'Amiina',
-  'Anni Rossi',
-  'Arcade Fire',
-  'Arthur & Yu',
-  'Au',
-  'Band of Horses',
-  'Beirut',
-  'Billie Holiday',
-  'Burial',
-  'Wilco',
-  'Justice',
-  'Bishop Allen',
-  'Sigur Ros',
-  'Bjork',
-  'The Black Keys',
-  'Bob Dylan',
-  'Bodies of Water',
-  'Bon Iver',
-  'Counting Crows',
-  'Death Cab for Cutie',
-  'Fleet Foxes',
-  'Fleetwood Mac',
-  'The Innocence Mission'
-], function (artistName) {
-  return {
-    fn: artistName,
-    type: 'artist',
-    app: 'music.gaiamobile.org',
-    display: 'Play ' + artistName,
-    // The text field that is searched with Grep.
-    // Generally speaking this should be the subject plus a few
-    // verb keywords.
-    searchable: (artistName + ' play listen music')
-  };
-});
-
-var allActions = merge([
-  CONTACTS_ACTIONS,
-  MESSAGE_ACTIONS,
-  DIALER_ACTIONS,
-  ARTIST_ACTIONS
-]);
 
 // Control flow logic
 // ----------------------------------------------------------------------------
@@ -183,44 +122,112 @@ var actionBarPressesOverTime = filter(keypressesOverTime, function (event) {
   return event.target.id === 'action-bar';
 });
 
-// Get the list of values in the action bar over time.
+// Create signal representing query entered into action bar.
 var searchQuery = map(actionBarPressesOverTime, function (event) {
-  return event.target.value;
+  return event.target.value.trim();
 });
 
-// Grep list of strings.
-var queryResult = map(searchQuery, function (value) {
-  var pattern = value.split(/\s+/).join("[^\\s]* ")
-  return grep(pattern, allActions, getSearchSerialization);
+// Create signal representing query terms entered into action bar,
+// also repeats in `searchQuery` are dropped to avoid more work
+// down the flow.
+var searchTerms = map(dropRepeats(searchQuery), function(query) {
+  return query.split(/\s+/);
 });
 
-function renderActions(input, target) {
-  var template = target.ownerDocument.createElement("li")
-  fold(input, function(actions, rendered) {
-    // reset view (probably instead of removing it would be better to move
-    // it down and dim a little to make it clear it's history and not a match.
-    target.innerHTML = ""
-    fold(actions, function(pair, rendered) {
-      var action = pair[0]
-      var score = pair[1]
 
-      var view = template.cloneNode(true)
-      view.className = "action-item " + escStringForClassname(action.app)
-      view.textContent = getDisplaySerialization(action)
+function searchWithVerb(terms) {
+  // We must be more intelligent than this but so far we assume
+  // that the verb is either first term or last.
+  var verb = "^" + terms[0] + "|^$"
+  // The rest terms are joined such that they can represent beginnings
+  // of the words.
+  var pattern = terms.slice(1).join("[^\\s]* ")
+  var verbs = grep(verb, actionsByVerb, field("name"))
 
-      // TODO: We should do binary search instead, but we
-      // can optimize this later.
-      rendered.push(score)
-      rendered = rendered.sort().reverse()
-      var index = rendered.lastIndexOf(score)
-      var prevous = target.children[index]
+  return expand(verbs, function(pair) {
+    // So far we don't support multiple action params so we just
+    // pick the first one
+    var app = pair[0].app
+    var action = pair[0].action
+    var score = pair[1]
 
-      if (prevous) target.insertBefore(view, prevous)
-      else target.appendChild(view)
-
-      return rendered
-    }, [])
+    var type = action.params[0]
+    var nouns = grep(pattern, data[type], field("serialized"))
+    return map(nouns, function(pair) {
+      return {
+        app: app,
+        action: action,
+        // Should we should visually outline actual parts that match?
+        input: pair[0],
+        score: score + pair[1]
+      }
+    })
   })
 }
 
-renderActions(queryResult,  document.getElementById('matches'))
+function searchWithNoun(terms) {
+  // In this case we don't assume than any of the terms is a
+  // verb so we create pattern for nouns from all the terms.
+  var pattern = terms.join("[^\\s]* ")
+  var matches = grep(pattern, nouns, query("noun.serialized"))
+  return expand(matches, function(pair) {
+    var score = pair[1]
+    var type = pair[0].type
+    var noun = pair[0].noun
+    // Filter verbs that can work with given noun type.
+    var verbs = filter(actionsByType, function(verb) {
+      return verb.type === type
+    })
+
+    return map(verbs, function(verb) {
+      return {
+        app: verb.app,
+        action: verb.action,
+        input: noun,
+        score: score
+      }
+    })
+  })
+}
+
+// Continues signal representing search results for the entered query.
+// special `SOQ` value is used at as delimiter to indicate results for
+// new query. This can be used by writer to flush previous inputs and
+// start writing now ones.
+var results = expand(searchTerms, function(terms) {
+  console.log(terms.length, terms)
+  if (!terms.length || !terms[0]) return SOQ
+
+  return concat(SOQ, searchWithVerb(terms), searchWithNoun(terms))
+})
+
+function renderActions(input, target) {
+  var template = target.ownerDocument.createElement("li")
+  fold(input, function(match, result) {
+    // reset view (probably instead of removing it would be better to move
+    // it down and dim a little to make it clear it's history and not a match.
+    if (match === SOQ) {
+      target.innerHTML = ""
+      return []
+    }
+
+    var view = template.cloneNode(true)
+    view.className = 'action-item ' + escStringForClassname(match.app.id)
+    view.textContent = compileCaption(match.action, match.input)
+
+    // TODO: We should do binary search instead, but we
+    // can optimize this later.
+    result.push(match.score)
+    result = result.sort().reverse()
+    var index = result.lastIndexOf(match.score)
+    var prevous = target.children[index]
+
+    target.insertBefore(view, prevous)
+
+    return result
+  }, [])
+}
+
+//print(results)
+
+renderActions(results,  document.getElementById('matches'))
