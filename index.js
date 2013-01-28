@@ -57,8 +57,6 @@ var actionsByType = expand(apps, function(app) {
   })
 })
 
-print(actionsByType)
-
 // All the data available, probably interface will need to be different
 // likely application should define hooks for nouns they can produce, such
 // that services could be easily incorporated. For now only thing we really
@@ -135,14 +133,14 @@ var searchTerms = map(dropRepeats(searchQuery), function(query) {
 });
 
 
-function searchWithVerb(terms) {
+function searchWithVerb(verb, terms) {
   // We must be more intelligent than this but so far we assume
   // that the verb is either first term or last.
-  var verb = "^" + terms[0] + "|^$"
+  var verbPattern = "^" + verb + "|^$"
   // The rest terms are joined such that they can represent beginnings
   // of the words.
-  var pattern = terms.slice(1).join("[^\\s]* ")
-  var verbs = grep(verb, actionsByVerb, field("name"))
+  var nounPattern = terms.join("[^\\s]* ")
+  var verbs = grep(verbPattern, actionsByVerb, field("name"))
 
   return expand(verbs, function(pair) {
     // So far we don't support multiple action params so we just
@@ -152,7 +150,7 @@ function searchWithVerb(terms) {
     var score = pair[1]
 
     var type = action.params[0]
-    var nouns = grep(pattern, data[type], field("serialized"))
+    var nouns = grep(nounPattern, data[type], field("serialized"))
     return map(nouns, function(pair) {
       return {
         app: app,
@@ -168,8 +166,8 @@ function searchWithVerb(terms) {
 function searchWithNoun(terms) {
   // In this case we don't assume than any of the terms is a
   // verb so we create pattern for nouns from all the terms.
-  var pattern = terms.join("[^\\s]* ")
-  var matches = grep(pattern, nouns, query("noun.serialized"))
+  var nounPattern = terms.join("[^\\s]* ")
+  var matches = grep(nounPattern, nouns, query("noun.serialized"))
   return expand(matches, function(pair) {
     var score = pair[1]
     var type = pair[0].type
@@ -195,10 +193,16 @@ function searchWithNoun(terms) {
 // new query. This can be used by writer to flush previous inputs and
 // start writing now ones.
 var results = expand(searchTerms, function(terms) {
-  console.log(terms.length, terms)
   if (!terms.length || !terms[0]) return SOQ
 
-  return concat(SOQ, searchWithVerb(terms), searchWithNoun(terms))
+  var count = terms.length
+  var first = terms[0]
+  var last = terms[count - 1]
+
+  return concat(SOQ, merge([
+    searchWithVerb(first, terms.slice(1)),
+    searchWithVerb(last, terms.slice(0, count - 1))
+  ]), searchWithNoun(terms))
 })
 
 function renderActions(input, target) {
@@ -227,7 +231,5 @@ function renderActions(input, target) {
     return result
   }, [])
 }
-
-//print(results)
 
 renderActions(results,  document.getElementById('matches'))
