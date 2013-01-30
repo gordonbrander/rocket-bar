@@ -216,7 +216,7 @@ function renderActions(input, target) {
     }
 
     var view = template.cloneNode(true)
-    view.className = 'action-item ' + escStringForClassname(match.app.id)
+    view.className = 'action-match ' + escStringForClassname(match.app.id)
     view.textContent = compileCaption(match.action, match.input)
 
     // TODO: We should do binary search instead, but we

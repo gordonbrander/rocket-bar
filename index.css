@@ -3,13 +3,15 @@
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
 html {
-  background: #384244;
+  background: #363636;
   color: #fff;
   font: 12px MozTT, sans-serif;
 }
 
 .action-header {
-  margin: 10px;
+  background: #2d2d2d;
+  border-bottom: 1px solid #211d1c;
+  padding: 10px;
 }
 
 .action-bar {
@@ -17,34 +19,50 @@ html {
   border-radius: 5px;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
+  height: 34px;
   padding: 4px 8px;
   width: 100%;
 }
 
 .action-matches {
-  border-top: 1px solid #596068;
   list-style: none;
-  margin: 10px 0;
+  margin: 0;
   padding: 0;
 }
 
-.action-item {
+/* 60px high. */
+.action-match {
   background-position: 7px center;
   background-repeat: no-repeat;
   background-size: 30px auto;
-  border-bottom: 1px solid #596068;
-  padding: 15px 15px 15px 45px;
+  border-bottom: 1px solid #4a494b;
+  padding: 14px 14px 14px 45px;
 }
 
-.action-item.music-gaiamobile-org {
+.action-match > .title,
+.action-match > .subtitle {
+  display: block;
+  font: normal normal 12px/16px MozTT, sans-serif;
+  overflow: ellipsis;
+  white-space: nowrap;
+}
+.action-match > .title {
+  
+}
+.action-match > .subtitle {
+  color: #ddd;
+}
+
+/* Define background images for specialized actions. */
+.action-match.music-gaiamobile-org {
   background-image: url(assets/Icon_Music.png);
 }
-.action-item.contacts-gaiamobile-org {
+.action-match.contacts-gaiamobile-org {
   background-image: url(assets/Icon_Contacts.png);
 }
-.action-item.dialer-gaiamobile-org {
+.action-match.dialer-gaiamobile-org {
   background-image: url(assets/Icon_Dialer.png);
 }
-.action-item.messages-gaiamobile-org {
+.action-match.messages-gaiamobile-org {
   background-image: url(assets/Icon_SMS.png);
 }
