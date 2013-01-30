@@ -133,25 +133,47 @@ var searchTerms = map(dropRepeats(searchQuery), function(query) {
 });
 
 
-function searchWithVerb(verb, terms) {
-  // We must be more intelligent than this but so far we assume
-  // that the verb is either first term or last.
-  var verbPattern = "^" + verb + "|^$"
-  // The rest terms are joined such that they can represent beginnings
-  // of the words.
-  var nounPattern = terms.join("[^\\s]* ")
-
-  var verbs = grep(verbPattern, actionsByVerb, field("name"))
+function searchWithVerb(terms) {
+  var verbs = expand(terms, function(term) {
+    return grep('^' + term, actionsByVerb, field("name"));
+  });
 
   return expand(verbs, function(pair) {
     // So far we don't support multiple action params so we just
     // pick the first one
-    var app = pair[0].app
-    var action = pair[0].action
-    var score = pair[1]
+    var app = pair[0].app;
+    var action = pair[0].action;
+    var verb = pair[0].name;
+    var score = pair[1];
 
-    var type = action.params[0]
-    var nouns = grep(nounPattern, data[type], field("serialized"))
+    var i = terms.indexOf(verb);
+    var nounPattern;
+    var suffix = "[^\\s]*";
+    if(i === 0) {
+      // The noun could be the next 1 or 2 words
+      nounPattern = "";
+
+      if(terms.length > 1) {
+        nounPattern = terms[1] + suffix;
+        console.log(nounPattern);
+
+        if(terms.length > 2) {
+          nounPattern += " (?:" + terms[2] + suffix + ")?";
+          console.log(nounPattern);
+        }
+      }
+    }
+    else if(i > 0) {
+      // The noun precedes the verb
+      var nouns = terms.slice(0, terms.indexOf(verb));
+      nounPattern = nouns.join(suffix + " ");
+    }
+    else {
+      nounPattern = terms.join(suffix + " ");
+    }
+
+    var type = action.params[0];
+    var nouns = grep(nounPattern, data[type], field("serialized"));
     return map(nouns, function(pair) {
       return {
         app: app,
@@ -159,9 +181,9 @@ function searchWithVerb(verb, terms) {
         // Should we should visually outline actual parts that match?
         input: pair[0],
         score: score + pair[1]
-      }
-    })
-  })
+      };
+    });
+  });
 }
 
 function searchWithNoun(terms) {
@@ -202,8 +224,7 @@ var results = expand(searchTerms, function(terms) {
   var last = terms[count - 1];
 
   return concat(SOQ,
-                searchWithVerb(first, terms.slice(1)),
-                searchWithVerb(last, terms.slice(0, count - 1)),
+                searchWithVerb(terms),
                 searchWithNoun(terms));
 });
 
