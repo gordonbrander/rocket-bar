@@ -140,6 +140,7 @@ function searchWithVerb(verb, terms) {
   // The rest terms are joined such that they can represent beginnings
   // of the words.
   var nounPattern = terms.join("[^\\s]* ")
+
   var verbs = grep(verbPattern, actionsByVerb, field("name"))
 
   return expand(verbs, function(pair) {
@@ -192,44 +193,45 @@ function searchWithNoun(terms) {
 // special `SOQ` value is used at as delimiter to indicate results for
 // new query. This can be used by writer to flush previous inputs and
 // start writing now ones.
+
 var results = expand(searchTerms, function(terms) {
-  if (!terms.length || !terms[0]) return SOQ
+  if (!terms.length || !terms[0]) return SOQ;
 
-  var count = terms.length
-  var first = terms[0]
-  var last = terms[count - 1]
+  var count = terms.length;
+  var first = terms[0];
+  var last = terms[count - 1];
 
-  return concat(SOQ, merge([
-    searchWithVerb(first, terms.slice(1)),
-    searchWithVerb(last, terms.slice(0, count - 1))
-  ]), searchWithNoun(terms))
-})
+  return concat(SOQ,
+                searchWithVerb(first, terms.slice(1)),
+                searchWithVerb(last, terms.slice(0, count - 1)),
+                searchWithNoun(terms));
+});
 
 function renderActions(input, target) {
-  var template = target.ownerDocument.createElement("li")
+  var template = target.ownerDocument.createElement("li");
   fold(input, function(match, result) {
     // reset view (probably instead of removing it would be better to move
     // it down and dim a little to make it clear it's history and not a match.
     if (match === SOQ) {
-      target.innerHTML = ""
-      return []
+      target.innerHTML = "";
+      return [];
     }
 
-    var view = template.cloneNode(true)
-    view.className = 'action-item ' + escStringForClassname(match.app.id)
-    view.textContent = compileCaption(match.action, match.input)
+    var view = template.cloneNode(true);
+    view.className = 'action-item ' + escStringForClassname(match.app.id);
+    view.textContent = compileCaption(match.action, match.input);
 
     // TODO: We should do binary search instead, but we
     // can optimize this later.
-    result.push(match.score)
-    result = result.sort().reverse()
-    var index = result.lastIndexOf(match.score)
-    var prevous = target.children[index]
+    result.push(match.score);
+    result = result.sort().reverse();
+    var index = result.lastIndexOf(match.score);
+    var prevous = target.children[index];
 
-    target.insertBefore(view, prevous)
+    target.insertBefore(view, prevous);
 
-    return result
-  }, [])
+    return result;
+  }, []);
 }
 
-renderActions(results,  document.getElementById('matches'))
+renderActions(results,  document.getElementById('matches'));
