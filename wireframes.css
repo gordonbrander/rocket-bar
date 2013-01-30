@@ -17,14 +17,16 @@ html {
 }
 
 html:hover .sticky {
-  opacity: 1;
+  opacity: .4;
 }
 
-.sticky:hover {
+html .sticky:hover {
+  opacity: 1;
   z-index: 999;
 }
 
 .screen-320x480 {
   height: 480px;
   width: 320px;
+  margin-bottom: 20px;
 }

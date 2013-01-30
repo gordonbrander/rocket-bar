@@ -13,7 +13,33 @@
 </head>
 <body>
 <aside class="sticky" style="top: 10px;">
-  <p>Actions grouped by verb</p>
+  <p>Bundled actions sorted by grep score.</p>
+  <p><b>Easiest</b>: bundled actions. All actions provided as noun+verb in a single action. Actions are sorted and ranked by grep score + any modifier scores.</p>
+</aside>
+
+<div class="screen screen-320x480">
+  <form action="" method="get" class="action-pallette">
+    <div class="action-header">
+      <input type="input" class="action-bar" id="action-bar" placeholder="Search for anything&hellip;" value="Jo">
+      <div class="action-loading"><span>Loading</span></div>
+    </div>
+    <ul class="action-matches" id="matches">
+      <li class="action-match action-item contacts-gaiamobile-org">
+        <b class="title">John Doe</b>
+        <span class="subtitle">(555) 555-5555</span>
+      </li>
+      <li class="action-match action-item contacts-gaiamobile-org">
+        <b class="title">Johnny Fedora</b>
+        <span class="subtitle">(555) 555-5135</span>
+      </li>
+    </ul>
+  </form>
+</div>
+
+<aside class="sticky" style="top: 500px;">
+  <p>Actions grouped by verb.</p>
+  <p><b>Compromise</b>: grouped bundled actions: group bundled actions by verb...
+  e.g., all the "call" actions are rendered as a group. Max 3 items per group.</p>
 </aside>
 <div class="screen screen-320x480">
   <form action="" method="get" class="action-pallette">
@@ -61,6 +87,7 @@
     </ul>
   </form>
 </div>
+
 </body>
 </html>
 
