@@ -52,7 +52,8 @@ html {
   width: 100%;
 }
 
-.action-matches {
+.action-matches,
+.action-group {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -60,37 +61,38 @@ html {
 
 /* 60px high. */
 .action-match {
-  background-position: 7px center;
+  background-position: 7px 7px;
   background-repeat: no-repeat;
   background-size: 30px auto;
   border-bottom: 1px solid #4a494b;
-  padding: 14px 14px 14px 45px;
+  padding: 14px 14px 0 45px;
+}
+/* Define background images for specialized actions. */
+.music-gaiamobile-org {
+  background-image: url(assets/Icon_Music.png);
+}
+.contacts-gaiamobile-org {
+  background-image: url(assets/Icon_Contacts.png);
+}
+.dialer-gaiamobile-org {
+  background-image: url(assets/Icon_Dialer.png);
+}
+.messages-gaiamobile-org {
+  background-image: url(assets/Icon_SMS.png);
 }
 
-.action-match > .title,
-.action-match > .subtitle {
+.action-item > .title,
+.action-item > .subtitle {
   display: block;
   font: normal normal 12px/16px MozTT, sans-serif;
   overflow: ellipsis;
   white-space: nowrap;
 }
-.action-match > .title {
-  
-}
-.action-match > .subtitle {
+
+.action-item > .subtitle {
   color: #8a9699;
 }
 
-/* Define background images for specialized actions. */
-.action-match.music-gaiamobile-org {
-  background-image: url(assets/Icon_Music.png);
-}
-.action-match.contacts-gaiamobile-org {
-  background-image: url(assets/Icon_Contacts.png);
-}
-.action-match.dialer-gaiamobile-org {
-  background-image: url(assets/Icon_Dialer.png);
-}
-.action-match.messages-gaiamobile-org {
-  background-image: url(assets/Icon_SMS.png);
+.action-item {
+  padding-bottom: 14px;
 }
