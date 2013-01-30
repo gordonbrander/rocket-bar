@@ -11,7 +11,35 @@ html {
 .action-header {
   background: #2d2d2d;
   border-bottom: 1px solid #211d1c;
-  padding: 10px;
+  padding: 10px 10px 11px;
+  position: relative;
+}
+
+.action-loading {
+  display: block;
+  height: 3px;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+}
+.action-loading > span {
+  background: url(assets/progress.png);
+  animation: 250ms throb infinite steps(7);
+  display: block;
+  font-size: 0px;
+  height: 24px;
+  text-indent: -9999px;
+}
+
+@keyframes throb {
+  from {
+    transform: translateY(0px);
+  }
+  to {
+    transform: translateY(-21px);
+  }
 }
 
 .action-bar {
