@@ -9,7 +9,7 @@ html {
   box-shadow: 1px 1px 1px rgba(0, 0, 0, .07);
   font: 12px/1.5 sans-serif;
   height: 90px;
-  left: 330px;
+  left: 340px;
   opacity: 0;
   overflow: hidden;
   padding: 0 1.2em;
@@ -49,5 +49,19 @@ html .sticky:hover:after {
 .screen-320x480 {
   height: 480px;
   width: 320px;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
+}
+
+.step {
+  padding: 10px;
+}
+
+.step:nth-child(even) {
+  background: #ddd;
+}
+
+.step-title {
+  font: normal normal 14px/20px sans-serif;
+  color: #777;
+  margin: 0 0 10px;
 }

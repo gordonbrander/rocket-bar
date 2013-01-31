@@ -12,117 +12,119 @@
   <link rel="stylesheet" href="../index.css" type="text/css">
 </head>
 <body>
-<aside class="sticky" style="top: 10px;">
-  <p><b>Approach A: Easiest</b>. Bundled actions sorted by grep score.</p>
-  <p>All actions provided as noun+verb in a single action. Actions are sorted and ranked by grep score + any modifier scores.</p>
-</aside>
-
-<div class="screen screen-320x480">
-  <form action="" method="get" class="action-pallette">
-    <div class="action-header">
-      <input type="input" class="action-bar" id="action-bar" placeholder="Search for anything&hellip;" value="Jo">
-      <div class="action-loading"><span>Loading</span></div>
-    </div>
-    <ul class="action-matches" id="matches">
-      <li class="action-match action-item contacts-gaiamobile-org">
-        <b class="title">John Doe</b>
-        <span class="subtitle">Contact information</span>
-      </li>
-      <li class="action-match action-item contacts-gaiamobile-org">
-        <b class="title">Johnny Fedora</b>
-        <span class="subtitle">Contact information</span>
-      </li>
-    </ul>
-  </form>
-</div>
-
-<aside class="sticky" style="top: 500px;">
-  <p><b>Approach B: compromise</b>. Actions grouped by verb.</p>
-  <p>Grouped bundled actions: group bundled actions by verb...
-  e.g., all the "call" actions are rendered as a group. Max 3 items per group.</p>
-</aside>
-<aside class="sticky" style="top: 200px;"> 
-  <ul>
-    <li>Rendered matches are sorted according to grep score
-      <ul>
-        <li>Bonus score for repeat use of action</li>
-        <li>Bonus score for apps we consider &quot;important&quot;: Contacts, SMS, Dialer
-      </li>
-      </ul>
-    </li>
-    <li>Empty queries should match nothing (and render nothing), not everything</li>
-    <li>Queries that should match noun &quot;Jack Bauer&quot;
-      <ul>
-        <li>Jack Bauer</li>
-        <li>jack bauer</li>
-        <li>Bauer Jack</li>
-        <li>baur jack</li>
-        <li>Jack B</li>
-        <li>J Bauer</li>
-        <li>ja ba</li>
-        <li>etc...</li>
-      </ul>
-    </li>
-    <li>Queries that should match action &quot;Call Jack Bauer&quot;
-      <ul>
-        <li>call jack bauer</li>
-        <li>call Jack BAuer</li>
-        <li>jack Call</li>
-        <li>bauer call</li>
-        <li>call ja</li>
-        <li>call bau</li>
-        <li>etc...</li>
-      </ul>
-    </li>
-  </ul>
-</aside>
-<div class="screen screen-320x480">
-  <form action="" method="get" class="action-pallette">
-    <div class="action-header">
-      <input type="input" class="action-bar" id="action-bar" placeholder="Search for anything&hellip;" value="Jo">
-      <div class="action-loading"><span>Loading</span></div>
-    </div>
-    <ul class="action-matches" id="matches">
-      <li class="action-match messages-gaiamobile-org">
-        <ul class="action-group">
-          <li class="action-item">
-            <b class="title">John Doe</b>
-            <span class="subtitle">SMS (555) 555-5555</span>
-          </li>
-          <li class="action-item">
-            <b class="title">Johnny Fedora</b>
-            <span class="subtitle">SMS (555) 555-5135</span>
-          </li>
+<section class="step">
+  <h1 class="step-title">Step 1: type in "jo"</h1>
+  
+  <aside class="sticky" style="top: 40px;">
+    <p><b>Approach A: Easiest</b>. Bundled actions sorted by grep score.</p>
+    <p>All actions provided as noun+verb in a single action. Actions are sorted and ranked by grep score + any modifier scores.</p>
+  </aside>
+  <aside class="sticky" style="top: 200px;"> 
+    <ul>
+      <li>Rendered matches are sorted according to grep score
+        <ul>
+          <li>Bonus score for repeat use of action</li>
+          <li>Bonus score for apps we consider &quot;important&quot;: Contacts, SMS, Dialer
+        </li>
         </ul>
       </li>
-      <li class="action-match dialer-gaiamobile-org">
-        <ul class="action-group">
-          <li class="action-item">
-            <b class="title">John Doe</b>
-            <span class="subtitle">Call (555) 555-5555</span>
-          </li>
-          <li class="action-item">
-            <b class="title">Johnny Fedora</b>
-            <span class="subtitle">Call (555) 555-5135</span>
-          </li>
+      <li>Empty queries should match nothing (and render nothing), not everything</li>
+      <li>Queries that should match noun &quot;Jack Bauer&quot;
+        <ul>
+          <li>Jack Bauer</li>
+          <li>jack bauer</li>
+          <li>Bauer Jack</li>
+          <li>baur jack</li>
+          <li>Jack B</li>
+          <li>J Bauer</li>
+          <li>ja ba</li>
+          <li>etc...</li>
         </ul>
       </li>
-      <li class="action-match contacts-gaiamobile-org">
-        <ul class="action-group">
-          <li class="action-item">
-            <b class="title">John Doe</b>
-            <span class="subtitle">Contact information</span>
-          </li>
-          <li class="action-item">
-            <b class="title">Johnny Fedora</b>
-            <span class="subtitle">Contact information</span>
-          </li>
+      <li>Queries that should match action &quot;Call Jack Bauer&quot;
+        <ul>
+          <li>call jack bauer</li>
+          <li>call Jack BAuer</li>
+          <li>jack Call</li>
+          <li>bauer call</li>
+          <li>call ja</li>
+          <li>call bau</li>
+          <li>etc...</li>
         </ul>
       </li>
     </ul>
-  </form>
-</div>
+  </aside>
+  <div class="screen screen-320x480">
+    <form action="" method="get" class="action-pallette">
+      <div class="action-header">
+        <input type="input" class="action-bar" id="action-bar" placeholder="Search for anything&hellip;" value="Jo">
+        <div class="action-loading"><span>Loading</span></div>
+      </div>
+      <ul class="action-matches" id="matches">
+        <li class="action-match action-item contacts-gaiamobile-org">
+          <b class="title">John Doe</b>
+          <span class="subtitle">Contact information</span>
+        </li>
+        <li class="action-match action-item contacts-gaiamobile-org">
+          <b class="title">Johnny Fedora</b>
+          <span class="subtitle">Contact information</span>
+        </li>
+      </ul>
+    </form>
+  </div>
 
+  <aside class="sticky" style="top: 540px;">
+    <p><b>Approach B: compromise</b>. Actions grouped by verb.</p>
+    <p>Grouped bundled actions: group bundled actions by verb...
+    e.g., all the "call" actions are rendered as a group. Max 3 items per group.</p>
+  </aside>
+  <div class="screen screen-320x480">
+    <form action="" method="get" class="action-pallette">
+      <div class="action-header">
+        <input type="input" class="action-bar" id="action-bar" placeholder="Search for anything&hellip;" value="Jo">
+        <div class="action-loading"><span>Loading</span></div>
+      </div>
+      <ul class="action-matches" id="matches">
+        <li class="action-match messages-gaiamobile-org">
+          <ul class="action-group">
+            <li class="action-item">
+              <b class="title">John Doe</b>
+              <span class="subtitle">SMS (555) 555-5555</span>
+            </li>
+            <li class="action-item">
+              <b class="title">Johnny Fedora</b>
+              <span class="subtitle">SMS (555) 555-5135</span>
+            </li>
+          </ul>
+        </li>
+        <li class="action-match dialer-gaiamobile-org">
+          <ul class="action-group">
+            <li class="action-item">
+              <b class="title">John Doe</b>
+              <span class="subtitle">Call (555) 555-5555</span>
+            </li>
+            <li class="action-item">
+              <b class="title">Johnny Fedora</b>
+              <span class="subtitle">Call (555) 555-5135</span>
+            </li>
+          </ul>
+        </li>
+        <li class="action-match contacts-gaiamobile-org">
+          <ul class="action-group">
+            <li class="action-item">
+              <b class="title">John Doe</b>
+              <span class="subtitle">Contact information</span>
+            </li>
+            <li class="action-item">
+              <b class="title">Johnny Fedora</b>
+              <span class="subtitle">Contact information</span>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </form>
+  </div>
+</section>
 </body>
 </html>
 
