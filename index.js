@@ -16,7 +16,7 @@ var fold = require('reducers/fold');
 var open = require('dom-reduce/event');
 var print = require('reducers/debug/print');
 var zip = require('zip-reduce');
-var grep = require('grep-reduce');
+var grep = require('./grep-reduce');
 var compose = require('functional/compose');
 var partial = require('functional/partial');
 var field = require('oops/field');
@@ -99,8 +99,14 @@ var nouns = expand(Object.keys(data), function(type) {
 
 // Takes action object and input for that action and returns string
 // representing caption for the element rendered.
-function compileCaption(action, input) {
-  return action.caption.replace('%', input.serialized);
+function compileCaption(action, input, trailingText) {
+  var content = action.caption.replace('%', input.serialized);
+
+  if(action.parameterized && trailingText) {
+    content += ' <span class="trailing">' + trailingText + '</span>';
+  }
+
+  return content;
 }
 
 function escStringForClassname(string) {
@@ -134,19 +140,22 @@ var searchTerms = map(dropRepeats(searchQuery), function(query) {
 
 
 function searchWithVerb(terms) {
+
   var verbs = expand(terms, function(term) {
     return grep('^' + term, actionsByVerb, field("name"));
   });
 
-  return expand(verbs, function(pair) {
+  return expand(verbs, function(info) {
     // So far we don't support multiple action params so we just
     // pick the first one
-    var app = pair[0].app;
-    var action = pair[0].action;
-    var verb = pair[0].name;
-    var score = pair[1];
+    var app = info[0].app;
+    var action = info[0].action;
+    var verb = info[0].name;
+    var score = info[1];
+    var match = info[2];
+    var trailingText = null;
 
-    var i = terms.indexOf(verb);
+    var i = terms.indexOf(match[0]);
     var nounPattern;
     var suffix = "[^\\s]*";
     if(i === 0) {
@@ -155,32 +164,45 @@ function searchWithVerb(terms) {
 
       if(terms.length > 1) {
         nounPattern = terms[1] + suffix;
-        console.log(nounPattern);
 
         if(terms.length > 2) {
           nounPattern += " (?:" + terms[2] + suffix + ")?";
-          console.log(nounPattern);
         }
+      }
+      else {
+        nounPattern = "";
       }
     }
     else if(i > 0) {
       // The noun precedes the verb
-      var nouns = terms.slice(0, terms.indexOf(verb));
+      var nouns = terms.slice(0, i);
       nounPattern = nouns.join(suffix + " ");
+      trailingText = terms.slice(i + 1).join(" ");
     }
     else {
-      nounPattern = terms.join(suffix + " ");
+      alert('bad');
     }
 
     var type = action.params[0];
     var nouns = grep(nounPattern, data[type], field("serialized"));
-    return map(nouns, function(pair) {
+    return map(nouns, function(info) {
+      if(!trailingText) {
+        var noun = info[2][0].replace(/^\s*|\s$/g, '');
+        
+        if(noun !== "") {
+          var numWords = noun.split(/\s+/).length;
+          // Slice off the noun plus the 1-word verb
+          trailingText = terms.slice(numWords + 1).join(' ');
+        }
+      }
+
       return {
         app: app,
         action: action,
         // Should we should visually outline actual parts that match?
-        input: pair[0],
-        score: score + pair[1]
+        input: info[0],
+        score: score + info[1],
+        trailingText: trailingText
       };
     });
   });
@@ -240,7 +262,10 @@ function renderActions(input, target) {
 
     var view = template.cloneNode(true);
     view.className = 'action-item ' + escStringForClassname(match.app.id);
-    view.textContent = compileCaption(match.action, match.input);
+
+    view.innerHTML = compileCaption(match.action,
+                                    match.input,
+                                    match.trailingText);
 
     // TODO: We should do binary search instead, but we
     // can optimize this later.

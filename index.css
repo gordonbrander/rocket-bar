@@ -48,3 +48,7 @@ html {
 .action-item.messages-gaiamobile-org {
   background-image: url(assets/Icon_SMS.png);
 }
+
+span.trailing {
+    color: #999999;
+}

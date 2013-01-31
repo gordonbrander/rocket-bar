@@ -11,7 +11,9 @@
     "grep-reduce": "0.2.0",
     "functional": "~1.0.0",
     "oops": "0.0.1",
-    "transducer": "~0.1.0"
+    "transducer": "~0.1.0",
+
+    "pattern-exp": "0.0.2"
   },
   "devDependencies": {
     "chai": "*",
