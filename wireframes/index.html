@@ -73,7 +73,7 @@
     </form>
   </div>
 
-  <aside class="sticky" style="top: 540px;">
+  <aside class="sticky" style="top: 530px;">
     <p><b>Approach B: compromise</b>. Actions grouped by verb.</p>
     <p>Grouped bundled actions: group bundled actions by verb...
     e.g., all the "call" actions are rendered as a group. Max 3 items per group.</p>
@@ -124,6 +124,86 @@
       </ul>
     </form>
   </div>
+
+
+  <aside class="sticky" style="top: 1020px;">
+    <p><b>Approach C: best</b>. Autocompleted nouns. Actions composed from noun + verb.</p>
+    <p>Action bar does type-ahead to help you auto-complete noun/verb, then does type-ahead to help you find relevant actions given that noun/verb.</p>
+    <ul>
+      <li>Auto-complete nouns so we can display richer options for a single noun, rather than mixing noun results in every case.</li>
+      <li>One approach: if we don't have a noun, offer highly weighted &quot;noun&quot; entries that, when tapped, auto-complete the noun, then immediately display actions.</li>
+      <li>Or, a chromeless autocomplete. See Pinboard.in tag autocompletion for example.</li>
+      <li>Disadvantage: can only display one autocompletion option at a time.</li>
+    </ul>
+  </aside>
+  <div class="screen screen-320x480">
+    <form action="" method="get" class="action-pallette">
+      <div class="action-header">
+        <input type="input" class="action-bar" id="action-bar" placeholder="Search for anything&hellip;" value="jo">
+        <div class="action-loading"><span>Loading</span></div>
+      </div>
+      <ul class="action-matches" id="matches">
+        <li class="action-completion">
+          <span class="title"><b>Jo</b>hn Doe</span>
+        </li>
+        <li class="action-completion">
+          <span class="title"><b>Jo</b>hnny Fedora</span>
+        </li>
+        <li class="action-completion">
+          <span class="title">B<b>jo</b>rk</span>
+        </li>
+      </ul>
+    </form>
+  </div>
+</section>
+<section class="step">
+  <h1 class="step-title">Step 2: Search sushi</h1>
+
+  <aside class="sticky" style="top: 40px;">
+    <p>Widgets should only load after we have a defined verb. E.g., we don't
+    want 5 map widgets to bubble up if we have 5 matches for "Su".</p>
+  </aside>
+  <div class="screen screen-320x480">
+    <form action="" method="get" class="action-pallette">
+      <div class="action-header">
+        <input type="input" class="action-bar" id="action-bar" placeholder="Search for anything&hellip;" value="sushi">
+        <div class="action-loading"><span>Loading</span></div>
+      </div>
+      <ul class="action-matches" id="matches">
+        <li class="action-match map-gaiamobile-org">
+          <img src="map.png" alt="" width="320" height="100" />
+
+          <div class="action-item">
+            <b class="title">Kiss Seafood</b>
+            <span class="subtitle">1700 Laguna St &mdash; 4 reviews</span>
+          </div>
+          + 3 More&hellip;
+        </li>
+        <li class="action-match action-item browser-gaiamobile-org">
+          <b class="title">Shabu Shabu Sushi</b>
+          <span class="subtitle">Inner Richmond (Up to 52% Off)</span>
+        </li>
+        <li class="action-match action-item browser-gaiamobile-org">
+          <b class="title">Sushi Guide</b>
+          <span class="subtitle">eatsushi.com &mdash; The best, most complete sushi website. With an extensive sushi</span>
+        </li>
+        <li class="action-match action-item browser-gaiamobile-org">
+          <b class="title">The Sushi FAQ</b>
+          <span class="subtitle">sushifaq.com &mdash; What is sushi? What is sashimi? The Sushi FAQ is devoted to sushi and its culture.</span>
+        </li>
+        <li class="action-match action-item browser-gaiamobile-org">
+          <b class="title">Blowfish Sushi to Die For</b>
+          <span class="subtitle">blowfishsushi.com</span>
+        </li>
+        <li class="action-match action-item browser-gaiamobile-org">
+          <b class="title">Tataki</b>
+          <span class="subtitle">tatakisushibar.com</span>
+        </li>
+
+      </ul>
+    </form>
+  </div>
+
 </section>
 </body>
 </html>
