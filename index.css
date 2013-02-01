@@ -80,12 +80,16 @@
 .messages-gaiamobile-org {
   background-image: url(assets/Icon_SMS.png);
 }
+.browser-gaiamobile-org {
+  background-image: url(assets/Icon_Browser_Unbranded.png);
+}
 
 .action-item > .title,
 .action-item > .subtitle {
   display: block;
   font: normal normal 12px/16px MozTT, sans-serif;
-  overflow: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
 }
 
