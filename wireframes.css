@@ -54,6 +54,7 @@ html .sticky:hover:after {
 
 .step {
   padding: 10px;
+  position: relative;
 }
 
 .step:nth-child(even) {
@@ -62,6 +63,6 @@ html .sticky:hover:after {
 
 .step-title {
   font: normal normal 14px/20px sans-serif;
-  color: #777;
+  color: #555;
   margin: 0 0 10px;
 }
