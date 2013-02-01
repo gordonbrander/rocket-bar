@@ -103,7 +103,7 @@ Used to define background images for entries. */
   background-position: 7px 14px;
   background-repeat: no-repeat;
   background-size: 30px auto;
-  min-height: 30px;
+  min-height: 44px;
   padding-left: 45px;
 }
 
