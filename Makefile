@@ -6,10 +6,14 @@ build:
 	./node_modules/.bin/browserify-server \
 		--bundle=index.js -o ./browserify-combined.js
 
+watch_build:
+	./node_modules/.bin/wr "make build" ./*.js
+
 server:
 	./node_modules/.bin/browserify-server \
 		--server=./ --port=9476
 
 prototype:
 	make build
-	make server
+	make server &
+	make watch_build

@@ -17,7 +17,8 @@
     "chai": "*",
     "mocha": "*",
     "browserify-server": "2.1.x",
-    "zip-reduce": "~0.1.0"
+    "zip-reduce": "~0.1.0",
+    "wr": "1.2.x"
   },
   "scripts": {
     "test": "./node_modules/mocha/bin/mocha --reporter spec",
