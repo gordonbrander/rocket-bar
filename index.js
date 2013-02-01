@@ -140,7 +140,6 @@ var searchTerms = map(dropRepeats(searchQuery), function(query) {
 
 
 function searchWithVerb(terms) {
-
   var verbs = expand(terms, function(term) {
     return grep('^' + term, actionsByVerb, field("name"));
   });
@@ -180,7 +179,8 @@ function searchWithVerb(terms) {
       trailingText = terms.slice(i + 1).join(" ");
     }
     else {
-      alert('bad');
+      // Should never get here since the matched term should always be
+      // in `terms`
     }
 
     var type = action.params[0];
@@ -211,16 +211,16 @@ function searchWithVerb(terms) {
 function searchWithNoun(terms) {
   // In this case we don't assume than any of the terms is a
   // verb so we create pattern for nouns from all the terms.
-  var nounPattern = terms.join("[^\\s]* ")
-  var matches = grep(nounPattern, nouns, query("noun.serialized"))
+  var nounPattern = terms.join("[^\\s]* ");
+  var matches = grep(nounPattern, nouns, query("noun.serialized"));
   return expand(matches, function(pair) {
-    var score = pair[1]
-    var type = pair[0].type
-    var noun = pair[0].noun
+    var score = pair[1];
+    var type = pair[0].type;
+    var noun = pair[0].noun;
     // Filter verbs that can work with given noun type.
     var verbs = filter(actionsByType, function(verb) {
-      return verb.type === type
-    })
+      return verb.type === type;
+    });
 
     return map(verbs, function(verb) {
       return {
@@ -228,9 +228,9 @@ function searchWithNoun(terms) {
         action: verb.action,
         input: noun,
         score: score
-      }
-    })
-  })
+      };
+    });
+  });
 }
 
 // Continues signal representing search results for the entered query.
