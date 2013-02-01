@@ -47,7 +47,7 @@ html .sticky:hover:after {
 }
 
 .screen-320x480 {
-  height: 480px;
+  min-height: 480px;
   width: 320px;
   margin-bottom: 10px;
 }
