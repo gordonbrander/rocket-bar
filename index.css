@@ -60,15 +60,53 @@
   padding: 0;
 }
 
-/* 60px high. */
+/* 
+.action-match represents a match, which can be an action or action widget.
+60px high. */
 .action-match {
+  border-bottom: 1px solid #4a494b;
+  /* Trust the inner item to provide a bottom margin or padding. */
+  padding: 14px 7px 0;
+}
+
+/* Individual action inside of an .action-match container.
+Styling inner element instead of .action-match allows us to be more flexible
+with how actions are rendered (widgets, autocomplete, etc). */
+.action-entry {
+  margin-bottom: 14px;
+}
+
+.action-entry > .title,
+.action-entry > .subtitle {
+  display: block;
+  font: normal normal 12px/16px MozTT, sans-serif;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.action-entry > .subtitle {
+  color: #8a9699;
+}
+
+/*
+.*-gaiamobile-org are modifier classes for .action-match.
+Based on local url of app.
+
+Used to define background images for entries. */
+.music-gaiamobile-org,
+.contacts-gaiamobile-org,
+.dialer-gaiamobile-org,
+.messages-gaiamobile-org,
+.browser-gaiamobile-org {
   background-position: 7px 14px;
   background-repeat: no-repeat;
   background-size: 30px auto;
-  border-bottom: 1px solid #4a494b;
-  padding: 14px 14px 0 45px;
+  min-height: 44px;
+  padding-left: 45px;
 }
-/* Define background images for specialized actions. */
+
 .music-gaiamobile-org {
   background-image: url(assets/Icon_Music.png);
 }
@@ -89,37 +127,19 @@
   padding: 0;
 }
 
-.action-item > .title,
-.action-item > .subtitle {
-  display: block;
-  font: normal normal 12px/16px MozTT, sans-serif;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.action-item > .title > i {
-  color: #8a9699;
-  font-size: 11px;
-  font-style: normal;
-}
-
-.action-item > .subtitle {
-  color: #8a9699;
-}
-
-.action-item {
-  padding-bottom: 14px;
-}
-
 /* Action completion -- autocomplete results for verbs/nouns */
 .action-completion {
-  border-bottom: 1px solid #4a494b;
-  padding: 14px;
+  margin-bottom: 14px;
 }
 
 .action-completion > .title {
+  display: block;
   color: #8a9699;
+  font: normal normal 12px/16px MozTT, sans-serif;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .action-completion > .title > b {
   color: #fff;
