@@ -1,0 +1,28 @@
+{
+  "name": "action-bar",
+  "id": "firefoxos-action-bar",
+  "version": "0.0.1",
+  "description": "Action bar prototype",
+  "author": "Gordon Brander <me@gordonbrander.com> (http://gordonbrander.com)",
+  "dependencies": {
+    "reducers": "2.0.x",
+    "reducible": "1.0.x",
+    "dom-reduce": "1.0.x",
+    "grep-reduce": "0.2.0",
+    "functional": "~1.0.0",
+    "oops": "0.0.1",
+    "transducer": "~0.1.0"
+  },
+  "devDependencies": {
+    "chai": "*",
+    "mocha": "*",
+    "browserify-server": "2.1.x",
+    "zip-reduce": "~0.1.0"
+  },
+  "scripts": {
+    "test": "./node_modules/mocha/bin/mocha --reporter spec",
+    "browserify": "browserify --exports require --watch --debug ./index.js --outfile ./browserify-combined.js",
+    "prototype": "make prototype",
+    "postinstall": "npm dedup"
+  }
+}

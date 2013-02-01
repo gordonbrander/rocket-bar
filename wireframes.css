@@ -2,6 +2,19 @@ html {
   background: #eee;
 }
 
+.keyboard {
+  background: rgba(0, 0, 0, .5);
+  bottom: 0;
+  height: 200px;
+  left: 0;
+  position: absolute;
+  right: 0;
+  z-index: 999;
+}
+.screen:hover .keyboard {
+  display: none;
+}
+
 .sticky {
   background: #fff3c2;
   border: 1px solid #e8c68c;
@@ -47,13 +60,15 @@ html .sticky:hover:after {
 }
 
 .screen-320x480 {
-  height: 480px;
+  min-height: 480px;
   width: 320px;
   margin-bottom: 10px;
+  position: relative;
 }
 
 .step {
   padding: 10px;
+  position: relative;
 }
 
 .step:nth-child(even) {
@@ -62,6 +77,6 @@ html .sticky:hover:after {
 
 .step-title {
   font: normal normal 14px/20px sans-serif;
-  color: #777;
+  color: #555;
   margin: 0 0 10px;
 }

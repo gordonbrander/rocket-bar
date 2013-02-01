@@ -43,12 +43,13 @@
 }
 
 .action-bar {
+  background: #fff url(assets/search.png) no-repeat 0 1px;
   border: 1px solid #000;
   border-radius: 5px;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   height: 34px;
-  padding: 4px 8px;
+  padding: 4px 8px 4px 34px;
   width: 100%;
 }
 
@@ -80,13 +81,27 @@
 .messages-gaiamobile-org {
   background-image: url(assets/Icon_SMS.png);
 }
+.browser-gaiamobile-org {
+  background-image: url(assets/Icon_Browser_Unbranded.png);
+}
+
+.map-gaiamobile-org {
+  padding: 0;
+}
 
 .action-item > .title,
 .action-item > .subtitle {
   display: block;
   font: normal normal 12px/16px MozTT, sans-serif;
-  overflow: ellipsis;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.action-item > .title > i {
+  color: #8a9699;
+  font-size: 11px;
+  font-style: normal;
 }
 
 .action-item > .subtitle {
@@ -95,4 +110,18 @@
 
 .action-item {
   padding-bottom: 14px;
+}
+
+/* Action completion -- autocomplete results for verbs/nouns */
+.action-completion {
+  border-bottom: 1px solid #4a494b;
+  padding: 14px;
+}
+
+.action-completion > .title {
+  color: #8a9699;
+}
+.action-completion > .title > b {
+  color: #fff;
+  font-weight: normal;
 }
