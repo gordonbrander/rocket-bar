@@ -16,8 +16,15 @@
   <h1 class="step-title">Step 1: type in "jo"</h1>
   
   <aside class="sticky" style="top: 40px;">
-    <p><b>Approach A: Easiest</b>. Bundled actions sorted by grep score.</p>
-    <p>All actions provided as noun+verb in a single action. Actions are sorted and ranked by grep score + any modifier scores.</p>
+    <p><b>Hybrid</b> (chosen approach): display up to 2 noun autocompletions at
+    the top of the list of actions. Tapping these autocompletions will fill
+    RocketBar with this value. When only one noun is matched, display
+    "rich" widgets.</p>
+
+    <p>Only one widget per noun. Highest grep rank with widget view gets to widget.</p>
+
+    <p>All actions provided as noun+verb in a single action. Actions are sorted
+    and ranked by grep score + any modifier scores.</p>
   </aside>
   <aside class="sticky" style="top: 200px;"> 
     <ul>
@@ -57,92 +64,6 @@
   <div class="screen screen-320x480">
     <form action="" method="get" class="action-pallette">
       <div class="action-header">
-        <input type="input" class="action-bar" id="action-bar" placeholder="Search for anything&hellip;" value="Jo">
-        <div class="action-loading"><span>Loading</span></div>
-      </div>
-      <ul class="action-matches" id="matches">
-        <li class="action-match contacts-gaiamobile-org">
-          <article class="action-entry">
-            <b class="title">John Doe</b>
-            <span class="subtitle">Contact information</span>
-          </article>
-        </li>
-        <li class="action-match contacts-gaiamobile-org">
-          <article class="action-entry">
-            <b class="title">Johnny Fedora</b>
-            <span class="subtitle">Contact information</span>
-          </article>
-        </li>
-      </ul>
-    </form>
-  </div>
-
-  <aside class="sticky" style="top: 530px;">
-    <p><b>Approach B: compromise</b>. Actions grouped by verb.</p>
-    <p>Grouped bundled actions: group bundled actions by verb...
-    e.g., all the "call" actions are rendered as a group. Max 3 items per group.</p>
-  </aside>
-  <div class="screen screen-320x480">
-    <form action="" method="get" class="action-pallette">
-      <div class="action-header">
-        <input type="input" class="action-bar" id="action-bar" placeholder="Search for anything&hellip;" value="Jo">
-        <div class="action-loading"><span>Loading</span></div>
-      </div>
-      <ul class="action-matches" id="matches">
-        <li class="action-match messages-gaiamobile-org">
-          <ul class="action-group">
-            <li class="action-entry">
-              <b class="title">John Doe</b>
-              <span class="subtitle">SMS (555) 555-5555</span>
-            </li>
-            <li class="action-entry">
-              <b class="title">Johnny Fedora</b>
-              <span class="subtitle">SMS (555) 555-5135</span>
-            </li>
-          </ul>
-        </li>
-        <li class="action-match dialer-gaiamobile-org">
-          <ul class="action-group">
-            <li class="action-entry">
-              <b class="title">John Doe</b>
-              <span class="subtitle">Call (555) 555-5555</span>
-            </li>
-            <li class="action-entry">
-              <b class="title">Johnny Fedora</b>
-              <span class="subtitle">Call (555) 555-5135</span>
-            </li>
-          </ul>
-        </li>
-        <li class="action-match contacts-gaiamobile-org">
-          <ul class="action-group">
-            <li class="action-entry">
-              <b class="title">John Doe</b>
-              <span class="subtitle">Contact information</span>
-            </li>
-            <li class="action-entry">
-              <b class="title">Johnny Fedora</b>
-              <span class="subtitle">Contact information</span>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </form>
-  </div>
-
-
-  <aside class="sticky" style="top: 1020px;">
-    <p><b>Approach C: best</b>. Autocompleted nouns. Actions composed from noun + verb.</p>
-    <p>Action bar does type-ahead to help you auto-complete noun/verb, then does type-ahead to help you find relevant actions given that noun/verb.</p>
-    <ul>
-      <li>Auto-complete nouns so we can display richer options for a single noun, rather than mixing noun results in every case.</li>
-      <li>One approach: if we don't have a noun, offer highly weighted &quot;noun&quot; entries that, when tapped, auto-complete the noun, then immediately display actions.</li>
-      <li>Or, a chromeless autocomplete. See Pinboard.in tag autocompletion for example.</li>
-      <li>Disadvantage: can only display one autocompletion option at a time.</li>
-    </ul>
-  </aside>
-  <div class="screen screen-320x480">
-    <form action="" method="get" class="action-pallette">
-      <div class="action-header">
         <input type="input" class="action-bar" id="action-bar" placeholder="Search for anything&hellip;" value="jo">
         <div class="action-loading"><span>Loading</span></div>
       </div>
@@ -157,9 +78,34 @@
             <h1 class="title"><b>Jo</b>hnny Fedora</h1>
           </article>
         </li>
-        <li class="action-match">
-          <article class="action-completion">
-            <h1 class="title">B<b>jo</b>rk</h1>
+        <li class="action-match messages-gaiamobile-org">
+          <article class="action-entry">
+            <b class="title">SMS John Doe</b>
+            <span class="subtitle">(555) 555-5555</span>
+          </article>
+        </li>
+        <li class="action-match contacts-gaiamobile-org">
+          <article class="action-entry">
+            <b class="title">John Doe</b>
+            <span class="subtitle">(555) 555-5555</span>
+          </article>
+        </li>
+        <li class="action-match contacts-gaiamobile-org">
+          <article class="action-entry">
+            <b class="title">Johnny Fedora</b>
+            <span class="subtitle">(555) 555-5555</span>
+          </article>
+        </li>
+        <li class="action-match music-gaiamobile-org">
+          <article class="action-entry">
+            <h1 class="title">Play Johnny Cash</h1>
+            <span class="subtitle">Artist / 14 songs / 3 Albums</span>
+          </article>
+        </li>
+        <li class="action-match browser-gaiamobile-org">
+          <article class="action-entry">
+            <h1 class="title">Joss Whedon &mdash; IMDb</h1>
+            <span class="subtitle">imdb.com &mdash; Avengers, Toy Story, Buffy the Vampire Slayer</span>
           </article>
         </li>
       </ul>
