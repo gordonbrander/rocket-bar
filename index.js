@@ -42,20 +42,20 @@ var SOQ = new String('Start of query');
 var actionsByVerb = expand(apps, function(app) {
   return expand(app.actions, function(action) {
     return map(action.names, function(name) {
-      return { name: name, action: action, app: app }
-    })
-  })
-})
+      return { name: name, action: action, app: app };
+    });
+  });
+});
 
 // Create live stream of all possible actions paired with types
 // of nouns they can do actions on.
 var actionsByType = expand(apps, function(app) {
   return expand(app.actions, function(action) {
     return map(action.params, function(type) {
-      return { type: type, action: action, app: app }
-    })
-  })
-})
+      return { type: type, action: action, app: app };
+    });
+  });
+});
 
 // All the data available, probably interface will need to be different
 // likely application should define hooks for nouns they can produce, such
@@ -66,14 +66,15 @@ var data = {
     return {
       artist: name,
       serialized: name
-    }
+    };
   }),
-  contact: map(contacts, function(name) {
+  contact: map(contacts, function(contact) {
     return {
-      serialized: name,
-      name: name,
+      serialized: contact.name,
+      name: contact.name,
       org: '',
-      tel: '',
+      home: contact.home,
+      mobile: contact.mobile,
       url: '',
       adr: {
         street_address: '',
@@ -83,16 +84,16 @@ var data = {
         country_name: ''
       },
       note: ''
-    }
+    };
   })
 }
 
 // Live stream of all the noun data paired with types.
 var nouns = expand(Object.keys(data), function(type) {
   return map(data[type], function(noun) {
-    return { type: type, noun: noun }
-  })
-})
+    return { type: type, noun: noun };
+  });
+});
 
 // Supporting functions
 // ----------------------------------------------------------------------------
@@ -154,7 +155,7 @@ function searchWithVerb(terms) {
     var match = info[2];
     var trailingText = null;
 
-    var i = terms.indexOf(match[0]);
+    var i = terms.map(String.toLowerCase).indexOf(match[0]);
     var nounPattern;
     var suffix = "[^\\s]*";
     if(i === 0) {
@@ -181,6 +182,7 @@ function searchWithVerb(terms) {
     else {
       // Should never get here since the matched term should always be
       // in `terms`
+      alert('bad');
     }
 
     var type = action.params[0];
