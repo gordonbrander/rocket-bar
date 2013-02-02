@@ -2,53 +2,150 @@
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
 
-html {
-  background: #384244;
+.screen {
+  background: #363636;
   color: #fff;
   font: 12px MozTT, sans-serif;
 }
 
 .action-header {
-  margin: 10px;
+  background: #2d2d2d;
+  border-bottom: 1px solid #211d1c;
+  padding: 10px 10px 11px;
+  position: relative;
+}
+
+.action-loading {
+  display: block;
+  height: 3px;
+  bottom: 0;
+  left: 0;
+  overflow: hidden;
+  position: absolute;
+  right: 0;
+}
+.action-loading > span {
+  background: url(assets/progress.png);
+  animation: 250ms throb infinite steps(7);
+  display: block;
+  font-size: 0px;
+  height: 24px;
+  text-indent: -9999px;
+}
+
+@keyframes throb {
+  from {
+    transform: translateY(0px);
+  }
+  to {
+    transform: translateY(-21px);
+  }
 }
 
 .action-bar {
+  background: #fff url(assets/search.png) no-repeat 0 1px;
   border: 1px solid #000;
   border-radius: 5px;
   -moz-box-sizing: border-box;
   box-sizing: border-box;
-  padding: 4px 8px;
+  height: 34px;
+  padding: 4px 8px 4px 34px;
   width: 100%;
 }
 
-.action-matches {
-  border-top: 1px solid #596068;
+.action-matches,
+.action-group {
   list-style: none;
-  margin: 10px 0;
+  margin: 0;
   padding: 0;
 }
 
-.action-item {
-  background-position: 7px center;
-  background-repeat: no-repeat;
-  background-size: 30px auto;
-  border-bottom: 1px solid #596068;
-  padding: 15px 15px 15px 45px;
+/* 
+.action-match represents a match, which can be an action or action widget.
+60px high. */
+.action-match {
+  border-bottom: 1px solid #4a494b;
+  /* Trust the inner item to provide a bottom margin or padding. */
+  padding: 14px 7px 0;
 }
 
-.action-item.music-gaiamobile-org {
+/* Individual action inside of an .action-match container.
+Styling inner element instead of .action-match allows us to be more flexible
+with how actions are rendered (widgets, autocomplete, etc). */
+.action-entry {
+  margin-bottom: 14px;
+}
+
+.action-entry > .title,
+.action-entry > .subtitle {
+  display: block;
+  font: normal normal 12px/16px MozTT, sans-serif;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.action-entry > .subtitle {
+  color: #8a9699;
+}
+
+/*
+.*-gaiamobile-org are modifier classes for .action-match.
+Based on local url of app.
+
+Used to define background images for entries. */
+.music-gaiamobile-org,
+.contacts-gaiamobile-org,
+.dialer-gaiamobile-org,
+.messages-gaiamobile-org,
+.browser-gaiamobile-org {
+  background-position: 7px 14px;
+  background-repeat: no-repeat;
+  background-size: 30px auto;
+  min-height: 44px;
+  padding-left: 45px;
+}
+
+.music-gaiamobile-org {
   background-image: url(assets/Icon_Music.png);
 }
-.action-item.contacts-gaiamobile-org {
+.contacts-gaiamobile-org {
   background-image: url(assets/Icon_Contacts.png);
 }
-.action-item.dialer-gaiamobile-org {
+.dialer-gaiamobile-org {
   background-image: url(assets/Icon_Dialer.png);
 }
-.action-item.messages-gaiamobile-org {
+.messages-gaiamobile-org {
   background-image: url(assets/Icon_SMS.png);
 }
 
 span.trailing {
     color: #999999;
+
+.browser-gaiamobile-org {
+  background-image: url(assets/Icon_Browser_Unbranded.png);
+}
+
+.map-gaiamobile-org {
+  padding: 0;
+}
+
+/* Action completion -- autocomplete results for verbs/nouns */
+.action-completion {
+  margin-bottom: 14px;
+}
+
+.action-completion > .title {
+  display: block;
+  color: #8a9699;
+  font: normal normal 12px/16px MozTT, sans-serif;
+  margin: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.action-completion > .title > b {
+  color: #fff;
+  font-weight: normal;
 }

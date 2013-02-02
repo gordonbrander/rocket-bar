@@ -1,0 +1,82 @@
+html {
+  background: #eee;
+}
+
+.keyboard {
+  background: rgba(0, 0, 0, .5);
+  bottom: 0;
+  height: 200px;
+  left: 0;
+  position: absolute;
+  right: 0;
+  z-index: 999;
+}
+.screen:hover .keyboard {
+  display: none;
+}
+
+.sticky {
+  background: #fff3c2;
+  border: 1px solid #e8c68c;
+  border-radius: 3px;
+  box-shadow: 1px 1px 1px rgba(0, 0, 0, .07);
+  font: 12px/1.5 sans-serif;
+  height: 90px;
+  left: 340px;
+  opacity: 0;
+  overflow: hidden;
+  padding: 0 1.2em;
+  position: absolute;
+  transition: .25s opacity linear;
+  width: 220px;
+}
+.sticky:after {
+  background: url(wireframes/sticky-fade.png) 0 0;
+  bottom: 0;
+  content: '';
+  height: 36px;
+  left: 0;
+  position: absolute;
+  right: 0;
+}
+
+html:hover .sticky {
+  opacity: 1;
+}
+
+html .sticky:hover {
+  height: auto;
+  z-index: 999;
+}
+html .sticky:hover:after {
+  display: none;
+}
+
+.sticky p,
+.sticky ul,
+.sticky ol {
+  margin-bottom: 9px;
+  margin-top: 9px;
+}
+
+.screen-320x480 {
+  min-height: 480px;
+  width: 320px;
+  margin-bottom: 10px;
+  position: relative;
+}
+
+.step {
+  padding: 10px;
+  position: relative;
+}
+
+.step:nth-child(even) {
+  background: #ddd;
+}
+
+.step-title {
+  font: normal normal 14px/20px sans-serif;
+  color: #555;
+  margin: 0 0 10px;
+}

@@ -102,16 +102,24 @@ var nouns = expand(Object.keys(data), function(type) {
 // representing caption for the element rendered.
 function compileCaption(action, input, trailingText) {
   var content = action.caption.replace('%', input.serialized);
-
-  if(action.parameterized && trailingText) {
-    content += ' <span class="trailing">' + trailingText + '</span>';
-  }
-
   return content;
 }
 
 function escStringForClassname(string) {
   return string.replace(/\~|\!|\@|\$|\%|\^|\&|\*|\(|\)|\_|\+|\-|\=|\,|\.|\/|\'|\;|\:|\"|\?|\>|\<|\[|\]|\\|\{|\}|\||\`|\#/g, '-');
+}
+
+// Create cached dummy element for function.
+var dummyEl = document.createElement('div');
+
+function createElementFromString(string) {
+  // Create a DOM node from an HTML string.
+  // Requires DOM.
+  //
+  // Assign as innerHTML.
+  dummyEl.innerHTML = string;
+  // Return the now-generated DOM nodes.
+  return dummyEl.firstChild;
 }
 
 // Control flow logic
@@ -253,7 +261,6 @@ var results = expand(searchTerms, function(terms) {
 });
 
 function renderActions(input, target) {
-  var template = target.ownerDocument.createElement("li");
   fold(input, function(match, result) {
     // reset view (probably instead of removing it would be better to move
     // it down and dim a little to make it clear it's history and not a match.
@@ -262,12 +269,23 @@ function renderActions(input, target) {
       return [];
     }
 
-    var view = template.cloneNode(true);
-    view.className = 'action-item ' + escStringForClassname(match.app.id);
+    var appClassname = escStringForClassname(match.app.id);
+    var title = compileCaption(match.action, match.input);
+    var trailingText = '';
 
-    view.innerHTML = compileCaption(match.action,
-                                    match.input,
-                                    match.trailingText);
+    if(match.action.parameterized && match.trailingText) {
+      trailingText = ' <span class="trailing">' + match.trailingText + '</span>';
+    }
+
+    // Eventually, we need a better way to handle this stuff. Templating? Mustache? writer() from reflex?
+    var view = createElementFromString(
+        '<li class="action-match ' + appClassname + '">' +
+        '<article class="action-entry">' +
+        '<h1 class="title">' + title + '</h1>' +
+        '<span class="trailing">' + trailingText + '</span>' +
+        '</article>' +
+        '</li>'
+    );
 
     // TODO: We should do binary search instead, but we
     // can optimize this later.
