@@ -43,7 +43,7 @@
 }
 
 .action-bar {
-  background: #fff url(assets/search.png) no-repeat 0 1px;
+  background: #fff url(assets/search.png) no-repeat 0 0;
   border: 1px solid #000;
   border-radius: 5px;
   -moz-box-sizing: border-box;
