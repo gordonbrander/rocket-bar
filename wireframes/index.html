@@ -64,20 +64,19 @@
   <div class="screen screen-320x480">
     <form action="" method="get" class="action-pallette">
       <div class="action-header">
-        <input type="input" class="action-bar" id="action-bar" placeholder="Search for anything&hellip;" value="jo">
-        <div class="action-loading"><span>Loading</span></div>
+        <div class="action-fields">
+          <input type="input" class="action-bar" id="action-bar" placeholder="Search for anything&hellip;" value="jo">
+        </div>
+        <ul class="action-completions">
+          <li class="action-completion">
+            <span class="title"><b>Jo</b>hn Doe</span>
+          </li>
+          <li class="action-completion">
+            <span class="title"><b>Jo</b>hnny Fedora</span>
+          </li>
+        </ul>
       </div>
-      <ul class="action-matches" id="matches">
-        <li class="action-match completion-gaiamobile-org">
-          <article class="action-completion">
-            <h1 class="title"><b>Jo</b>hn Doe</h1>
-          </article>
-        </li>
-        <li class="action-match completion-gaiamobile-org">
-          <article class="action-completion">
-            <h1 class="title"><b>Jo</b>hnny Fedora</h1>
-          </article>
-        </li>
+      <ul class="action-matches action-list" id="matches">
         <li class="action-match messages-gaiamobile-org">
           <article class="action-entry">
             <b class="title">SMS John Doe</b>
@@ -117,7 +116,9 @@
   <div class="screen screen-320x480">
     <form action="" method="get" class="action-pallette">
       <div class="action-header">
-        <input type="input" class="action-bar" id="action-bar" placeholder="Search for anything&hellip;" value="John Doe">
+        <div class="action-fields">
+          <input type="input" class="action-bar" id="action-bar" placeholder="Search for anything&hellip;" value="John Doe">
+        </div>
         <div class="action-loading"><span>Loading</span></div>
       </div>
       <ul class="action-matches" id="matches">
@@ -159,7 +160,9 @@
   <div class="screen screen-320x480">
     <form action="" method="get" class="action-pallette">
       <div class="action-header">
-        <input type="input" class="action-bar" id="action-bar" placeholder="Search for anything&hellip;" value="sushi">
+        <div class="action-fields">
+          <input type="input" class="action-bar" id="action-bar" placeholder="Search for anything&hellip;" value="sushi">
+        </div>
         <div class="action-loading"><span>Loading</span></div>
       </div>
       <ul class="action-matches" id="matches">

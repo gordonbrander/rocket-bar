@@ -11,10 +11,17 @@
 .action-header {
   background: #2d2d2d;
   border-bottom: 1px solid #211d1c;
-  padding: 7px 7px 8px;
+  box-shadow: 0 0 2px rgba(0, 0, 0, .5);
+  overflow: hidden;
+  /* The extra 1px gives the loading bar a bit of room to breathe. */
+  padding-bottom: 1px;
+  /* Contains absolute elements. */
   position: relative;
+  /* Make sure box-shadow shows up over the top of content below. */
+  z-index: 2;
 }
 
+/* Progress indicator. Should be shown every time we're downloading. */
 .action-loading {
   display: block;
   height: 3px;
@@ -42,6 +49,11 @@
   }
 }
 
+/* Wrapper for .action-bar. Allows us to put space around the bar, since input
+elements can't ever be truly width: auto; */
+.action-fields {
+  margin: 7px;
+}
 .action-bar {
   background: #fff url(assets/search.png) no-repeat 0 0;
   border: 1px solid #000;
@@ -49,12 +61,13 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
   height: 34px;
-  padding: 4px 8px 4px 34px;
+  padding: 4px 8px 4px 36px;
   width: 100%;
 }
 
+/* Basic shared list style that nukes default bulllets. */
 .action-matches,
-.action-group {
+.action-completions{
   list-style: none;
   margin: 0;
   padding: 0;
@@ -76,8 +89,10 @@ with how actions are rendered (widgets, autocomplete, etc). */
   margin-bottom: 14px;
 }
 
+/* General title and subtitle styles */
 .action-entry > .title,
-.action-entry > .subtitle {
+.action-entry > .subtitle,
+.action-completion > .title {
   display: block;
   font: normal normal 12px/16px MozTT, sans-serif;
   margin: 0;
@@ -127,16 +142,16 @@ Used to define background images for entries. */
   padding: 0;
 }
 
+.action-completions {
+  margin: 7px 0;
+}
+
 /* Action completion -- autocomplete results for verbs/nouns */
-.completion-gaiamobile-org {
-  background: url(assets/search.png) 7px 7px no-repeat;
-}
-
 .action-completion {
-  margin-bottom: 14px;
-  padding-left: 38px;
+  background: #2d2d2d url(assets/search.png) 8px 3px no-repeat;
+  margin: 0;
+  padding: 10px 7px 10px 45px;
 }
-
 .action-completion > .title {
   display: block;
   color: #8a9699;
