@@ -128,8 +128,13 @@ Used to define background images for entries. */
 }
 
 /* Action completion -- autocomplete results for verbs/nouns */
+.completion-gaiamobile-org {
+  background: url(assets/search.png) 7px 7px no-repeat;
+}
+
 .action-completion {
   margin-bottom: 14px;
+  padding-left: 38px;
 }
 
 .action-completion > .title {
