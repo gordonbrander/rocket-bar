@@ -134,6 +134,10 @@ Used to define background images for entries. */
 .messages-gaiamobile-org {
   background-image: url(assets/Icon_SMS.png);
 }
+
+span.trailing {
+    color: #999999;
+
 .browser-gaiamobile-org {
   background-image: url(assets/Icon_Browser_Unbranded.png);
 }
