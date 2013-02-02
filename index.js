@@ -211,6 +211,7 @@ function searchWithVerb(terms) {
         action: action,
         // Should we should visually outline actual parts that match?
         input: info[0],
+        inputType: type,
         score: score + info[1],
         trailingText: trailingText
       };
@@ -237,6 +238,7 @@ function searchWithNoun(terms) {
         app: verb.app,
         action: verb.action,
         input: noun,
+        inputType: type,
         score: score
       };
     });
@@ -260,6 +262,30 @@ var results = expand(searchTerms, function(terms) {
                 searchWithNoun(terms));
 });
 
+var renderType = {
+  'contact': function(input, title, trailingText) {
+    var txt = '<article class="action-entry">' +
+      '<h1 class="title">' + title + '</h1>';
+
+    if(input.home) {
+      txt += '<span class="extra">Home: ' + input.home + '</span>';
+    }
+    else if(input.mobile) {
+      txt += '<span class="extra">Mobile: ' + input.mobile + '</span>';
+    }
+
+    return txt + '<span class="trailing">' + trailingText + '</span>' +
+      '</article>';
+  },
+
+  'default': function(input, title, trailingText) {
+    return '<article class="action-entry">' +
+      '<h1 class="title">' + title + '</h1>' +
+      '<span class="trailing">' + trailingText + '</span>' +
+      '</article>';
+  }
+};
+
 function renderActions(input, target) {
   fold(input, function(match, result) {
     // reset view (probably instead of removing it would be better to move
@@ -273,19 +299,26 @@ function renderActions(input, target) {
     var title = compileCaption(match.action, match.input);
     var trailingText = '';
 
+    try {
+
     if(match.action.parameterized && match.trailingText) {
       trailingText = ' <span class="trailing">' + match.trailingText + '</span>';
     }
 
+    var renderFunc = renderType[match.inputType] || renderType['default'];
+
     // Eventually, we need a better way to handle this stuff. Templating? Mustache? writer() from reflex?
     var view = createElementFromString(
-        '<li class="action-match ' + appClassname + '">' +
-        '<article class="action-entry">' +
-        '<h1 class="title">' + title + '</h1>' +
-        '<span class="trailing">' + trailingText + '</span>' +
-        '</article>' +
+      '<li class="action-match ' + appClassname + '">' +
+        renderFunc(match.input, title, trailingText) +
         '</li>'
     );
+
+    }
+    catch(e) {
+      console.log(e);
+    }
+
 
     // TODO: We should do binary search instead, but we
     // can optimize this later.
