@@ -9,7 +9,7 @@
 }
 
 .action-header {
-  background: #2d2d2d;
+  background: #242424;
   border-bottom: 1px solid #383838;
   box-shadow: 0 0 2px rgba(0, 0, 0, .5);
   overflow: hidden;
@@ -68,7 +68,8 @@ elements can't ever be truly width: auto; */
 
 /* Basic shared list style that nukes default bulllets. */
 .action-matches,
-.action-completions{
+.action-completions,
+.action-results {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -79,21 +80,79 @@ elements can't ever be truly width: auto; */
 60px high. */
 .action-match {
   border-bottom: 1px solid #4a494b;
+  min-height: 44px;
   /* Trust the inner item to provide a bottom margin or padding. */
-  padding: 14px 7px 0;
+  /* Contains absolute elements. */
+  position: relative;
+}
+
+/*
+.*-gaiamobile-org are modifier classes for .action-match.
+Based on local url of app.
+
+Used to define background images for entries. */
+.music-gaiamobile-org:before,
+.contacts-gaiamobile-org:before,
+.dialer-gaiamobile-org:before,
+.messages-gaiamobile-org:before,
+.browser-gaiamobile-org:before,
+.email-gaiamobile-org:before,
+.facebook-com:before,
+.imdb-com:before {
+  content: '';
+  background-repeat: no-repeat;
+  background-size: 30px auto;
+  height: 30px;
+  left: 7px;
+  padding-left: 45px;
+  position: absolute;
+  top: 7px;
+  width: 30px;
+}
+
+.music-gaiamobile-org:before {
+  background-image: url(assets/Icon_Music.png);
+}
+.contacts-gaiamobile-org:before {
+  background-image: url(assets/Icon_Contacts.png);
+}
+.dialer-gaiamobile-org:before {
+  background-image: url(assets/Icon_Dialer.png);
+}
+.messages-gaiamobile-org:before {
+  background-image: url(assets/Icon_SMS.png);
+}
+.browser-gaiamobile-org:before {
+  background-image: url(assets/Icon_Browser_Unbranded.png);
+}
+.email-gaiamobile-org:before {
+  background-image: url(assets/Icon_E-Mail.png);
+}
+.facebook-com:before {
+  background-image: url(assets/Icon_Facebook.png);
+}
+.imdb-com:before {
+  background-image: url(assets/Icon_Imdb.png);
+}
+.yelp-com:before {
+  background: url(assets/Icon_Yelp.png) 7px 107px no-repeat;
+  background-size: 30px auto;
+  padding: 0;
 }
 
 /* Individual action inside of an .action-match container.
 Styling inner element instead of .action-match allows us to be more flexible
 with how actions are rendered (widgets, autocomplete, etc). */
-.action-entry {
-  margin-bottom: 14px;
+.action-match > .action-entry {
+  padding: 7px 7px 7px 45px;
 }
 
 /* General title and subtitle styles */
 .action-entry > .title,
 .action-entry > .subtitle,
-.action-completion > .title {
+.action-completion > .title,
+.action-result > .title,
+.action-result > .subtitle {
   display: block;
   font: normal normal 14px/16px MozTT, sans-serif;
   margin: 0;
@@ -107,58 +166,13 @@ with how actions are rendered (widgets, autocomplete, etc). */
   font-size: 12px;
 }
 
-/*
-.*-gaiamobile-org are modifier classes for .action-match.
-Based on local url of app.
-
-Used to define background images for entries. */
-.music-gaiamobile-org,
-.contacts-gaiamobile-org,
-.dialer-gaiamobile-org,
-.messages-gaiamobile-org,
-.browser-gaiamobile-org,
-.email-gaiamobile-org,
-.facebook-gaiamobile-org {
-  background-position: 7px 14px;
-  background-repeat: no-repeat;
-  background-size: 30px auto;
-  min-height: 44px;
-  padding-left: 45px;
-}
-
-.music-gaiamobile-org {
-  background-image: url(assets/Icon_Music.png);
-}
-.contacts-gaiamobile-org {
-  background-image: url(assets/Icon_Contacts.png);
-}
-.dialer-gaiamobile-org {
-  background-image: url(assets/Icon_Dialer.png);
-}
-.messages-gaiamobile-org {
-  background-image: url(assets/Icon_SMS.png);
-}
-.browser-gaiamobile-org {
-  background-image: url(assets/Icon_Browser_Unbranded.png);
-}
-.email-gaiamobile-org {
-  background-image: url(assets/Icon_E-Mail.png);
-}
-.facebook-gaiamobile-org {
-  background-image: url(assets/Icon_Facebook.png);
-}
-
-.map-gaiamobile-org {
-  padding: 0;
-}
-
 .action-completions {
   margin: 7px 0;
 }
 
 /* Action completion -- autocomplete results for verbs/nouns */
 .action-completion {
-  background: #2d2d2d url(assets/search.png) 8px 3px no-repeat;
+  background: url(assets/search.png) 8px 3px no-repeat;
   margin: 0;
   padding: 10px 7px 10px 45px;
 }
@@ -174,4 +188,42 @@ Used to define background images for entries. */
 .action-completion > .title > b {
   color: #fff;
   font-weight: normal;
+}
+
+/* Action results -- a list of results for a given query. Usually inside
+of an .action-match. */
+.action-results {
+  padding: 7px 7px 1px 45px;
+}
+
+.action-results > .title {
+  color: #8a9699;
+  font-size: 10px;
+  margin: 0 0 7px;
+  text-transform: uppercase;
+}
+
+/* Action results are lists of search results from various apps. */
+.action-result {
+  margin-bottom: 14px;
+}
+.action-result > .title {
+  font-size: 12px;
+}
+.action-result > .subtitle {
+  color: #8a9699;
+  font-size: 11px;
+}
+.action-result-unread {
+  position: relative;
+}
+.action-result-unread:before {
+  background: #52B6CC;
+  border-radius: 50%;
+  content: '';
+  height: 7px;
+  left: -26px;
+  position: absolute;
+  top: 6px;
+  width: 7px;
 }
