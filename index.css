@@ -10,7 +10,7 @@
 
 .action-header {
   background: #2d2d2d;
-  border-bottom: 1px solid #211d1c;
+  border-bottom: 1px solid #383838;
   box-shadow: 0 0 2px rgba(0, 0, 0, .5);
   overflow: hidden;
   /* The extra 1px gives the loading bar a bit of room to breathe. */
@@ -117,7 +117,8 @@ Used to define background images for entries. */
 .dialer-gaiamobile-org,
 .messages-gaiamobile-org,
 .browser-gaiamobile-org,
-.email-gaiamobile-org {
+.email-gaiamobile-org,
+.facebook-gaiamobile-org {
   background-position: 7px 14px;
   background-repeat: no-repeat;
   background-size: 30px auto;
@@ -142,6 +143,9 @@ Used to define background images for entries. */
 }
 .email-gaiamobile-org {
   background-image: url(assets/Icon_E-Mail.png);
+}
+.facebook-gaiamobile-org {
+  background-image: url(assets/Icon_Facebook.png);
 }
 
 .map-gaiamobile-org {
