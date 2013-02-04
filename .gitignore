@@ -16,3 +16,7 @@ node_modules/
 Icon?
 ehthumbs.db
 Thumbs.db
+
+# Dev-specific run script
+run
+supervise

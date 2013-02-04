@@ -16,7 +16,7 @@ var fold = require('reducers/fold');
 var open = require('dom-reduce/event');
 var print = require('reducers/debug/print');
 var zip = require('zip-reduce');
-var grep = require('grep-reduce');
+var grep = require('./grep-reduce');
 var compose = require('functional/compose');
 var partial = require('functional/partial');
 var field = require('oops/field');
@@ -42,20 +42,20 @@ var SOQ = new String('Start of query');
 var actionsByVerb = expand(apps, function(app) {
   return expand(app.actions, function(action) {
     return map(action.names, function(name) {
-      return { name: name, action: action, app: app }
-    })
-  })
-})
+      return { name: name, action: action, app: app };
+    });
+  });
+});
 
 // Create live stream of all possible actions paired with types
 // of nouns they can do actions on.
 var actionsByType = expand(apps, function(app) {
   return expand(app.actions, function(action) {
     return map(action.params, function(type) {
-      return { type: type, action: action, app: app }
-    })
-  })
-})
+      return { type: type, action: action, app: app };
+    });
+  });
+});
 
 // All the data available, probably interface will need to be different
 // likely application should define hooks for nouns they can produce, such
@@ -66,7 +66,7 @@ var data = {
     return {
       artist: name,
       serialized: name
-    }
+    };
   }),
   contact: contacts
 }
@@ -74,17 +74,18 @@ var data = {
 // Live stream of all the noun data paired with types.
 var nouns = expand(Object.keys(data), function(type) {
   return map(data[type], function(noun) {
-    return { type: type, noun: noun }
-  })
-})
+    return { type: type, noun: noun };
+  });
+});
 
 // Supporting functions
 // ----------------------------------------------------------------------------
 
 // Takes action object and input for that action and returns string
 // representing caption for the element rendered.
-function compileCaption(action, input) {
-  return action.caption.replace('%', input.serialized);
+function compileCaption(action, input, trailingText) {
+  var content = action.caption.replace('%', input.serialized);
+  return content;
 }
 
 function escStringForClassname(string) {
@@ -130,103 +131,183 @@ var searchTerms = map(dropRepeats(searchQuery), function(query) {
 });
 
 
-function searchWithVerb(verb, terms) {
-  // We must be more intelligent than this but so far we assume
-  // that the verb is either first term or last.
-  var verbPattern = "^" + verb + "|^$"
-  // The rest terms are joined such that they can represent beginnings
-  // of the words.
-  var nounPattern = terms.join("[^\\s]* ")
-  var verbs = grep(verbPattern, actionsByVerb, field("name"))
+function searchWithVerb(terms) {
+  var verbs = expand(terms, function(term) {
+    return grep('^' + term, actionsByVerb, field("name"));
+  });
 
-  return expand(verbs, function(pair) {
+  return expand(verbs, function(info) {
     // So far we don't support multiple action params so we just
     // pick the first one
-    var app = pair[0].app
-    var action = pair[0].action
-    var score = pair[1]
+    var app = info[0].app;
+    var action = info[0].action;
+    var verb = info[0].name;
+    var score = info[1];
+    var match = info[2];
+    var trailingText = null;
 
-    var type = action.params[0]
-    var nouns = grep(nounPattern, data[type], field("serialized"))
-    return map(nouns, function(pair) {
+    var i = terms.map(String.toLowerCase).indexOf(match[0]);
+    var nounPattern;
+    var suffix = "[^\\s]*";
+    if(i === 0) {
+      // The noun could be the next 1 or 2 words
+      nounPattern = "";
+
+      if(terms.length > 1) {
+        nounPattern = terms[1] + suffix;
+
+        if(terms.length > 2) {
+          nounPattern += " (?:" + terms[2] + suffix + ")?";
+        }
+      }
+      else {
+        nounPattern = "";
+      }
+    }
+    else if(i > 0) {
+      // The noun precedes the verb
+      var nouns = terms.slice(0, i);
+      nounPattern = nouns.join(suffix + " ");
+      trailingText = terms.slice(i + 1).join(" ");
+    }
+    else {
+      // Should never get here since the matched term should always be
+      // in `terms`
+      alert('bad');
+    }
+
+    var type = action.params[0];
+    var nouns = grep(nounPattern, data[type], field("serialized"));
+    return map(nouns, function(info) {
+      if(!trailingText) {
+        var noun = info[2][0].replace(/^\s*|\s$/g, '');
+        
+        if(noun !== "") {
+          var numWords = noun.split(/\s+/).length;
+          // Slice off the noun plus the 1-word verb
+          trailingText = terms.slice(numWords + 1).join(' ');
+        }
+      }
+
       return {
         app: app,
         action: action,
         // Should we should visually outline actual parts that match?
-        input: pair[0],
-        score: score + pair[1]
-      }
-    })
-  })
+        input: info[0],
+        inputType: type,
+        score: score + info[1],
+        trailingText: trailingText
+      };
+    });
+  });
 }
 
 function searchWithNoun(terms) {
   // In this case we don't assume than any of the terms is a
   // verb so we create pattern for nouns from all the terms.
-  var nounPattern = terms.join("[^\\s]* ")
-  var matches = grep(nounPattern, nouns, query("noun.serialized"))
+  var nounPattern = terms.join("[^\\s]* ");
+  var matches = grep(nounPattern, nouns, query("noun.serialized"));
   return expand(matches, function(pair) {
-    var score = pair[1]
-    var type = pair[0].type
-    var noun = pair[0].noun
+    var score = pair[1];
+    var type = pair[0].type;
+    var noun = pair[0].noun;
     // Filter verbs that can work with given noun type.
     var verbs = filter(actionsByType, function(verb) {
-      return verb.type === type
-    })
+      return verb.type === type;
+    });
 
     return map(verbs, function(verb) {
       return {
         app: verb.app,
         action: verb.action,
         input: noun,
+        inputType: type,
         score: score
-      }
-    })
-  })
+      };
+    });
+  });
 }
 
 // Continues signal representing search results for the entered query.
 // special `SOQ` value is used at as delimiter to indicate results for
 // new query. This can be used by writer to flush previous inputs and
 // start writing now ones.
+
 var results = expand(searchTerms, function(terms) {
-  if (!terms.length || !terms[0]) return SOQ
+  if (!terms.length || !terms[0]) return SOQ;
 
-  var count = terms.length
-  var first = terms[0]
-  var last = terms[count - 1]
+  var count = terms.length;
+  var first = terms[0];
+  var last = terms[count - 1];
 
-  return concat(SOQ, merge([
-    searchWithVerb(first, terms.slice(1)),
-    searchWithVerb(last, terms.slice(0, count - 1))
-  ]), searchWithNoun(terms))
-})
+  return concat(SOQ,
+                searchWithVerb(terms),
+                searchWithNoun(terms));
+});
+
+var renderType = {
+  'contact': function(input, title, trailingText) {
+    var subtitle = trailingText || input.tel;
+
+    return '<article class="action-entry">' +
+      '<h1 class="title">' + title + '</h1>' +
+      '<span class="subtitle">' + subtitle + '</span>' +
+      '</article>';
+  },
+
+  'default': function(input, title, trailingText) {
+    return '<article class="action-entry">' +
+      '<h1 class="title">' + title + '</h1>' +
+      '<span class="subtitle">' + trailingText + '</span>' +
+      '</article>';
+  }
+};
 
 function renderActions(input, target) {
   fold(input, function(match, result) {
     // reset view (probably instead of removing it would be better to move
     // it down and dim a little to make it clear it's history and not a match.
     if (match === SOQ) {
-      target.innerHTML = ""
-      return []
+      target.innerHTML = "";
+      return [];
     }
 
     var appClassname = escStringForClassname(match.app.id);
     var title = compileCaption(match.action, match.input);
+    var trailingText = '';
+
+    try {
+
+    if(match.action.parameterized && match.trailingText) {
+      trailingText = ' <span class="trailing">' + match.trailingText + '</span>';
+    }
+
+    var renderFunc = renderType[match.inputType] || renderType['default'];
+
     // Eventually, we need a better way to handle this stuff. Templating? Mustache? writer() from reflex?
-    var view = createElementFromString('<li class="action-match ' + appClassname + '"><article class="action-entry"><h1 class="title">' + title + '</h1></article></li>');
+    var view = createElementFromString(
+      '<li class="action-match ' + appClassname + '">' +
+        renderFunc(match.input, title, trailingText) +
+        '</li>'
+    );
+
+    }
+    catch(e) {
+      console.log(e);
+    }
+
 
     // TODO: We should do binary search instead, but we
     // can optimize this later.
-    result.push(match.score)
-    result = result.sort().reverse()
-    var index = result.lastIndexOf(match.score)
-    var prevous = target.children[index]
+    result.push(match.score);
+    result = result.sort().reverse();
+    var index = result.lastIndexOf(match.score);
+    var prevous = target.children[index];
 
-    target.insertBefore(view, prevous)
+    target.insertBefore(view, prevous);
 
-    return result
-  }, [])
+    return result;
+  }, []);
 }
-print(results);
-renderActions(results,  document.getElementById('matches'))
+
+renderActions(results,  document.getElementById('matches'));
