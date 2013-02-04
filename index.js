@@ -68,23 +68,7 @@ var data = {
       serialized: name
     }
   }),
-  contact: map(contacts, function(name) {
-    return {
-      serialized: name,
-      name: name,
-      org: '',
-      tel: '',
-      url: '',
-      adr: {
-        street_address: '',
-        locality: '',
-        region: '',
-        postal_code: '',
-        country_name: ''
-      },
-      note: ''
-    }
-  })
+  contact: contacts
 }
 
 // Live stream of all the noun data paired with types.
@@ -105,6 +89,19 @@ function compileCaption(action, input) {
 
 function escStringForClassname(string) {
   return string.replace(/\~|\!|\@|\$|\%|\^|\&|\*|\(|\)|\_|\+|\-|\=|\,|\.|\/|\'|\;|\:|\"|\?|\>|\<|\[|\]|\\|\{|\}|\||\`|\#/g, '-');
+}
+
+// Create cached dummy element for function.
+var dummyEl = document.createElement('div');
+
+function createElementFromString(string) {
+  // Create a DOM node from an HTML string.
+  // Requires DOM.
+  //
+  // Assign as innerHTML.
+  dummyEl.innerHTML = string;
+  // Return the now-generated DOM nodes.
+  return dummyEl.firstChild;
 }
 
 // Control flow logic
@@ -206,7 +203,6 @@ var results = expand(searchTerms, function(terms) {
 })
 
 function renderActions(input, target) {
-  var template = target.ownerDocument.createElement("li")
   fold(input, function(match, result) {
     // reset view (probably instead of removing it would be better to move
     // it down and dim a little to make it clear it's history and not a match.
@@ -215,9 +211,10 @@ function renderActions(input, target) {
       return []
     }
 
-    var view = template.cloneNode(true)
-    view.className = 'action-match ' + escStringForClassname(match.app.id)
-    view.textContent = compileCaption(match.action, match.input)
+    var appClassname = escStringForClassname(match.app.id);
+    var title = compileCaption(match.action, match.input);
+    // Eventually, we need a better way to handle this stuff. Templating? Mustache? writer() from reflex?
+    var view = createElementFromString('<li class="action-match ' + appClassname + '"><article class="action-entry"><h1 class="title">' + title + '</h1></article></li>');
 
     // TODO: We should do binary search instead, but we
     // can optimize this later.
@@ -231,5 +228,5 @@ function renderActions(input, target) {
     return result
   }, [])
 }
-
+print(results);
 renderActions(results,  document.getElementById('matches'))
