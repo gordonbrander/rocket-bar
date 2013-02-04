@@ -118,6 +118,21 @@ function compareMatches(a, b) {
   return 0;
 }
 
+function compareSuggestions(a, b) {
+  // Array.prototype.sort sorting function for ordering results.
+
+  // a is less than b by some ordering criterion
+  if (a[1] < b[1]) {
+    return -1;
+  }
+  // a is greater than b by the ordering criterion.
+  if (a[1] > b[1]) {
+    return 1;
+  }
+  // a must be equal to b
+  return 0;
+}
+
 function sort(reducible, sortingFunction) {
   // Maybe a more efficient way to do this via reducible()?
   var eventualArray = into(reducible, []);
@@ -133,6 +148,14 @@ function reverse(reducible) {
   return when(eventualArray, function (array) {
     return array.reverse();
   });
+}
+
+function sortFirstX(reducible, sampleSize, sortingFunction) {
+  // Gives you the
+  // Take the first 100 results and use those.
+  var firstX = take(reducible, sampleSize);
+  var bottomX = sort(firstX, sortingFunction);
+  return reverse(bottomX);
 }
 
 function createMatchHTML(match) {
@@ -422,17 +445,16 @@ fold(suggestionValuesOverTime, function (value) {
 });
 
 var matchesContainer = document.getElementById('matches');
+var suggestionsContainer = document.getElementById('suggestions');
+
 fold(resultSetsOverTime, function (resultSet) {
   var actions = resultSet.actions;
   var suggestions = resultSet.suggestions;
 
   // Take the first 100 results and use those.
-  var first100 = take(actions, 100);
-  var bottom100 = sort(first100, compareMatches);
-  var top100 = reverse(bottom100);
-
+  var top100Actions = sortFirstX(actions, 100, compareMatches);
   // And take only the top 20.
-  var cappedResults = take(top100, 20);
+  var cappedResults = take(top100Actions, 20);
 
   // Create the amalgamated HTML string.
   var eventualHtml = fold(cappedResults, function (match, matches) {
@@ -444,13 +466,32 @@ fold(resultSetsOverTime, function (resultSet) {
     matchesContainer.innerHTML = html;
   });
 
+  var top100Suggestions = sortFirstX(suggestions, 100, compareSuggestions);
+  var cappedSuggestions = take(top100Suggestions, 4);
+
+  var suggestionTitles = map(cappedSuggestions, function (suggestion) {
+    return suggestion[0].noun.serialized;
+  });
+
+  var eventualSuggestionsHtml = fold(suggestionTitles, function (title, html) {
+    return html + '<li class="action-completion">' + 
+      '<span class="title">' +
+      title +
+      '</span>' +
+      '</li>'
+  }, '');
+
+  fold(eventualSuggestionsHtml, function (html) {
+    suggestionsContainer.innerHTML = html;
+  });
+
   // Filter actions down to "start of query" actions.
-  var soqsOverTime = filter(actions, function (match) {
+  var SOQs = filter(actions, function (match) {
     return match === SOQ;
   });
 
   // Clear matches for every start of query.
-  fold(soqsOverTime, function (soq) {
+  fold(SOQs, function () {
     matchesContainer.innerHTML = '';
   });
 });
