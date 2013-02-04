@@ -259,20 +259,23 @@ var renderType = {
   }
 };
 
-function renderActions(input, target) {
+function renderActions(input, target, suggestionsEl) {
   fold(input, function(match, result) {
+    var results = result.results;
+    var suggestions = result.suggestions;
+
     // reset view (probably instead of removing it would be better to move
     // it down and dim a little to make it clear it's history and not a match.
     if (match === SOQ) {
       target.innerHTML = "";
-      return [];
+      suggestionsEl.innerHTML = "";
+      return { suggestions: [],
+               results: [] };
     }
 
     var appClassname = escStringForClassname(match.app.id);
     var title = compileCaption(match.action, match.input);
     var trailingText = '';
-
-    try {
 
     if(match.action.parameterized && match.trailingText) {
       trailingText = ' <span class="trailing">' + match.trailingText + '</span>';
@@ -287,23 +290,72 @@ function renderActions(input, target) {
         '</li>'
     );
 
-    }
-    catch(e) {
-      console.log(e);
-    }
-
-
     // TODO: We should do binary search instead, but we
     // can optimize this later.
-    result.push(match.score);
-    result = result.sort().reverse();
-    var index = result.lastIndexOf(match.score);
+    results.push(match.score);
+    results.sort().reverse();
+    var index = results.lastIndexOf(match.score);
     var prevous = target.children[index];
-
     target.insertBefore(view, prevous);
 
+    try {
+
+    // Show the top 2 nouns as auto-completion suggestions
+    if(results[0] == match.score || results[1] == match.score) {
+      var el = createElementFromString(
+        '<li class="action-completion">' + 
+          '<span class="title">' +
+          match.input.serialized +
+          '</span>' +
+          '</li>'
+      );
+      el.noun = match.input.serialized;
+
+      if(suggestions.length) {
+        if(suggestions[0] < match.score) {
+          if(suggestions.length > 1) {
+            suggestionsEl.removeChild(suggestionsEl.children[1]);
+            suggestions.pop();
+          }
+
+          suggestionsEl.insertBefore(el, suggestionsEl.children[0]);
+          suggestions.unshift(match.score);
+        }
+        else if(suggestions[0] > match.score) {
+          if(suggestions.length > 1) {
+            suggestionsEl.removeChild(suggestionsEl.children[1]);
+            suggestions.pop();
+          }
+
+          suggestionsEl.appendChild(el);
+          suggestions.push(match.score);
+        }
+      }
+      else {
+        suggestionsEl.appendChild(el);
+        suggestions.push(match.score);
+      }
+    }
+
+    } catch(e) {
+      console.log(e)
+    }
+
     return result;
-  }, []);
+  }, { suggestions: [],
+       results: [] });
 }
 
-renderActions(results,  document.getElementById('matches'));
+document.getElementById('suggestions').addEventListener('click', function(e) {
+  var target = e.target;
+
+  if(target.tagName == 'SPAN') {
+    target = target.parentNode;
+  }
+
+  var bar = document.getElementById('action-bar').value = target.noun;
+});
+
+renderActions(results, 
+              document.getElementById('matches'),
+              document.getElementById('suggestions'));
