@@ -283,6 +283,7 @@ var doc = document.documentElement;
 
 // Catch all bubbled keypress events.
 var keypressesOverTime = open(doc, 'keyup');
+var clicksOverTime = open(doc, 'click');
 
 // We're only interested in events on the action bar.
 var actionBarPressesOverTime = filter(keypressesOverTime, function (event) {
@@ -294,20 +295,37 @@ var actionBarValuesOverTime = map(actionBarPressesOverTime, function (event) {
   return event.target.value.trim();
 });
 
-var suggestionClicksOverTime = open(document.getElementById('suggestions'), 'click');
-var suggestionValuesOverTime = map(suggestionClicksOverTime, function (e) {
-  var target = e.target;
+// Get all clicks that originated from an action-completion
+var completionClicksOverTime = filter(clicksOverTime, function (event) {
+  return event.target.className === 'action-completion';
+});
+var clickedCompletionTitleElementsOverTime = map(completionClicksOverTime, function (event) {
+  return event.target.getElementsByClassName('title')[0];
+});
 
-  if(target.tagName == 'SPAN') {
-    target = target.parentNode;
-  }
-  // I'm not sure where the noun property comes from
-  // -GB
-  return target.noun;
+// Get all clicks that originated from an action-completion
+var completionTitleClicksOverTime = filter(clicksOverTime, function (event) {
+  return (
+    event.target.className === 'title' &&
+    event.target.parentNode.className === 'action-completion'
+  );
+});
+
+var clickedTitlesOfCompletionElementsOverTime = map(completionTitleClicksOverTime, function (event) {
+  return event.target;
+});
+
+var completionTitleElementsOverTime = merge([
+  clickedCompletionTitleElementsOverTime,
+  clickedTitlesOfCompletionElementsOverTime
+]);
+
+var completionValuesOverTime = map(completionTitleElementsOverTime, function (element) {
+  return element.textContent;
 });
 
 // Merge clicked suggested values stream and actionBar values stream.
-var searchQuery = merge([suggestionValuesOverTime, actionBarValuesOverTime]);
+var searchQuery = merge([completionValuesOverTime, actionBarValuesOverTime]);
 
 // Create signal representing query terms entered into action bar,
 // also repeats in `searchQuery` are dropped to avoid more work
@@ -352,8 +370,8 @@ var renderType = {
 };
 
 var actionBarElement = document.getElementById('action-bar');
-
-fold(suggestionValuesOverTime, function (value) {
+print(completionValuesOverTime);
+fold(completionValuesOverTime, function (value) {
   actionBarElement.value = value;
 });
 
