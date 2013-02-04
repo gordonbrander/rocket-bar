@@ -388,7 +388,12 @@ document.getElementById('suggestions').addEventListener('click', function(e) {
   var bar = document.getElementById('action-bar').value = target.noun;
 });
 
+var matchesContainer = document.getElementById('matches');
 fold(resultsOverTime, function (results) {
+  var soqsOverTime = filter(results, function (match) {
+    return match === SOQ;
+  });
+
   // Take the first 100 results and use those.
   var first100 = take(results, 100);
   // Capture the first 100 so we can sort it.
@@ -406,8 +411,12 @@ fold(resultsOverTime, function (results) {
     }, '');
   });
 
+  fold(soqsOverTime, function (soq) {
+    matchesContainer.innerHTML = '';
+  });
+
   fold(eventualHtml, function (html) {
-    document.getElementById('matches').innerHTML = html;
+    matchesContainer.innerHTML = html;
   });
 });
 
