@@ -148,9 +148,23 @@ var actionBarPressesOverTime = filter(keypressesOverTime, function (event) {
 });
 
 // Create signal representing query entered into action bar.
-var searchQuery = map(actionBarPressesOverTime, function (event) {
+var actionBarValuesOverTime = map(actionBarPressesOverTime, function (event) {
   return event.target.value.trim();
 });
+
+var suggestionClicksOverTime = open(document.getElementById('suggestions'), 'click');
+var suggestionValuesOverTime = map(suggestionClicksOverTime, function (e) {
+  var target = e.target;
+
+  if(target.tagName == 'SPAN') {
+    target = target.parentNode;
+  }
+  // I'm not sure where the noun property comes from
+  // -GB
+  return target.noun;
+});
+
+var searchQuery = merge([suggestionValuesOverTime, actionBarValuesOverTime]);
 
 // Create signal representing query terms entered into action bar,
 // also repeats in `searchQuery` are dropped to avoid more work
@@ -158,7 +172,6 @@ var searchQuery = map(actionBarPressesOverTime, function (event) {
 var searchTerms = map(dropRepeats(searchQuery), function(query) {
   return query.split(/\s+/);
 });
-
 
 function searchWithVerb(terms) {
   var verbs = expand(terms, function(term) {
@@ -378,14 +391,10 @@ function renderActions(input, target, suggestionsEl) {
        results: [] });
 }
 
-document.getElementById('suggestions').addEventListener('click', function(e) {
-  var target = e.target;
+var actionBarElement = document.getElementById('action-bar');
 
-  if(target.tagName == 'SPAN') {
-    target = target.parentNode;
-  }
-
-  var bar = document.getElementById('action-bar').value = target.noun;
+fold(suggestionValuesOverTime, function (value) {
+  actionBarElement.value = value;
 });
 
 var matchesContainer = document.getElementById('matches');
