@@ -263,20 +263,22 @@ var renderType = {
   }
 };
 
-function renderActions(input, target) {
+function renderActions(input, target, suggestionsEl) {
   fold(input, function(match, result) {
+    var results = result.results;
+
     // reset view (probably instead of removing it would be better to move
     // it down and dim a little to make it clear it's history and not a match.
     if (match === SOQ) {
       target.innerHTML = "";
-      return [];
+      suggestionsEl.innerHTML = "";
+      return { suggestions: [],
+               results: [] };
     }
 
     var appClassname = escStringForClassname(match.app.id);
     var title = compileCaption(match.action, match.input);
     var trailingText = '';
-
-    try {
 
     if(match.action.parameterized && match.trailingText) {
       trailingText = ' <span class="trailing">' + match.trailingText + '</span>';
@@ -291,23 +293,49 @@ function renderActions(input, target) {
         '</li>'
     );
 
+    // TODO: We should do binary search instead, but we
+    // can optimize this later.
+    results.push(match.score);
+    results.sort().reverse();
+    var index = results.lastIndexOf(match.score);
+    var prevous = target.children[index];
+    target.insertBefore(view, prevous);
+
+
+    try {
+
+    var noun = match.input.serialized;
+
+    if(results[0] == match.score && result.suggestions.indexOf(noun) === -1) {
+      result.suggestions = [noun];
+
+      while (suggestionsEl.hasChildNodes()) {
+        suggestionsEl.removeChild(suggestionsEl.lastChild);
+      }
+
+      suggestionsEl.appendChild(
+        createElementFromString(
+          '<li class="action-match">' + 
+            '<article class="action-entry">' +
+            '<h1 class="title">' +
+            noun +
+            '</h1>' +
+            '</article>' +
+            '</li>'
+        )
+      );
+    }
+
     }
     catch(e) {
       console.log(e);
     }
 
-
-    // TODO: We should do binary search instead, but we
-    // can optimize this later.
-    result.push(match.score);
-    result = result.sort().reverse();
-    var index = result.lastIndexOf(match.score);
-    var prevous = target.children[index];
-
-    target.insertBefore(view, prevous);
-
     return result;
-  }, []);
+  }, { suggestions: [],
+       results: [] });
 }
 
-renderActions(results,  document.getElementById('matches'));
+renderActions(results, 
+              document.getElementById('matches'),
+              document.getElementById('suggestions'));
