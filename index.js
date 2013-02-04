@@ -118,6 +118,22 @@ function compareMatches(a, b) {
   return 0;
 }
 
+function createMatchHTML(match) {
+  // Creates the HTML string for a single match.
+
+  var appClassname = escStringForClassname(match.app.id);
+  var title = compileCaption(match.action, match.input);
+  var trailingText = (match.action.parameterized &&
+                      match.trailingText) ? match.trailingText :  '';
+
+  var renderFunc = renderType[match.inputType] || renderType['default'];
+
+  // Eventually, we need a better way to handle this stuff. Templating? Mustache? writer() from reflex?
+  return '<li class="action-match ' + appClassname + '">' +
+    renderFunc(match.input, title, trailingText) +
+    '</li>';
+}
+
 // Control flow logic
 // ----------------------------------------------------------------------------
 
@@ -378,12 +394,20 @@ fold(resultsOverTime, function (results) {
   // Capture the first 100 so we can sort it.
   var capturedResults = into(first100, []);
 
-  when(capturedResults, function (capturedResults) {
+  // Capture eventual transformed 
+  var eventualHtml = when(capturedResults, function (capturedResults) {
     // Sort the results by score -- highest first.
     var sortedResults = capturedResults.sort(compareMatches).reverse();
     // And take only the top 20.
     var cappedResults = take(sortedResults, 20);
-    print(cappedResults);
+
+    return fold(cappedResults, function (match, matches) {
+      return matches + createMatchHTML(match);
+    }, '');
+  });
+
+  fold(eventualHtml, function (html) {
+    document.getElementById('matches').innerHTML = html;
   });
 });
 
