@@ -22,6 +22,9 @@ var partial = require('functional/partial');
 var field = require('oops/field');
 var query = require('oops/query');
 var dropRepeats = require('transducer/drop-repeats');
+var take = require('reducers/take');
+var into = require('reducers/into');
+var when = require('eventual/when');
 
 var kicks = require('./kicks.js'),
     apply = kicks.apply,
@@ -98,6 +101,21 @@ function createElementFromString(string) {
   dummyEl.innerHTML = string;
   // Return the now-generated DOM nodes.
   return dummyEl.firstChild;
+}
+
+function compareMatches(a, b) {
+  // Array.prototype.sort sorting function for ordering results.
+
+  // a is less than b by some ordering criterion
+  if (a.score < b.score) {
+    return -1;
+  }
+  // a is greater than b by the ordering criterion.
+  if (a.score > b.score) {
+    return 1;
+  }
+  // a must be equal to b
+  return 0;
 }
 
 // Control flow logic
@@ -228,16 +246,14 @@ function searchWithNoun(terms) {
 // new query. This can be used by writer to flush previous inputs and
 // start writing now ones.
 
-var results = expand(searchTerms, function(terms) {
+var resultsOverTime = map(searchTerms, function(terms) {
   if (!terms.length || !terms[0]) return SOQ;
 
   var count = terms.length;
   var first = terms[0];
   var last = terms[count - 1];
 
-  return concat(SOQ,
-                searchWithVerb(terms),
-                searchWithNoun(terms));
+  return merge([ searchWithVerb(terms), searchWithNoun(terms)]);
 });
 
 var renderType = {
@@ -356,6 +372,21 @@ document.getElementById('suggestions').addEventListener('click', function(e) {
   var bar = document.getElementById('action-bar').value = target.noun;
 });
 
-renderActions(results, 
-              document.getElementById('matches'),
-              document.getElementById('suggestions'));
+fold(resultsOverTime, function (results) {
+  // Take the first 100 results and use those.
+  var first100 = take(results, 100);
+  // Capture the first 100 so we can sort it.
+  var capturedResults = into(first100, []);
+
+  when(capturedResults, function (capturedResults) {
+    // Sort the results by score -- highest first.
+    var sortedResults = capturedResults.sort(compareMatches).reverse();
+    // And take only the top 20.
+    var cappedResults = take(sortedResults, 20);
+    print(cappedResults);
+  });
+});
+
+//renderActions(results, 
+//             document.getElementById('matches'),
+//             document.getElementById('suggestions'));
