@@ -266,6 +266,7 @@ var renderType = {
 function renderActions(input, target, suggestionsEl) {
   fold(input, function(match, result) {
     var results = result.results;
+    var suggestions = result.suggestions;
 
     // reset view (probably instead of removing it would be better to move
     // it down and dim a little to make it clear it's history and not a match.
@@ -301,34 +302,48 @@ function renderActions(input, target, suggestionsEl) {
     var prevous = target.children[index];
     target.insertBefore(view, prevous);
 
+    var noun = match.input.serialized;
 
     try {
 
-    var noun = match.input.serialized;
-
-    if(results[0] == match.score && result.suggestions.indexOf(noun) === -1) {
-      result.suggestions = [noun];
-
-      while (suggestionsEl.hasChildNodes()) {
-        suggestionsEl.removeChild(suggestionsEl.lastChild);
-      }
-
-      suggestionsEl.appendChild(
-        createElementFromString(
-          '<li class="action-match">' + 
-            '<article class="action-entry">' +
-            '<h1 class="title">' +
-            noun +
-            '</h1>' +
-            '</article>' +
-            '</li>'
-        )
+    // Show the top 2 nouns as auto-completion suggestions
+    if(results[0] == match.score || results[1] == match.score) {
+      var el = createElementFromString(
+        '<li class="action-completion">' + 
+          '<span class="title">' +
+          noun +
+          '</span>' +
+          '</li>'
       );
+
+      if(suggestions.length) {
+        if(suggestions[0] < match.score) {
+          if(suggestions.length > 1) {
+            suggestionsEl.removeChild(suggestionsEl.children[1]);
+            suggestions.pop();
+          }
+
+          suggestionsEl.insertBefore(el, suggestionsEl.children[0]);
+          suggestions.unshift(match.score);
+        }
+        else if(suggestions[0] > match.score) {
+          if(suggestions.length > 1) {
+            suggestionsEl.removeChild(suggestionsEl.children[1]);
+            suggestions.pop();
+          }
+
+          suggestionsEl.appendChild(el);
+          suggestions.push(match.score);
+        }
+      }
+      else {
+        suggestionsEl.appendChild(el);
+        suggestions.push(match.score);
+      }
     }
 
-    }
-    catch(e) {
-      console.log(e);
+    } catch(e) {
+      console.log(e)
     }
 
     return result;
