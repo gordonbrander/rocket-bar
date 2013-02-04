@@ -22,6 +22,9 @@ var partial = require('functional/partial');
 var field = require('oops/field');
 var query = require('oops/query');
 var dropRepeats = require('transducer/drop-repeats');
+var take = require('reducers/take');
+var into = require('reducers/into');
+var when = require('eventual/when');
 
 var kicks = require('./kicks.js'),
     apply = kicks.apply,
@@ -67,7 +70,7 @@ var data = {
 }
 
 // Live stream of all the noun data paired with types.
-var nouns = expand(Object.keys(data), function(type) {
+var NOUNS = expand(Object.keys(data), function(type) {
   return map(data[type], function(noun) {
     return { type: type, noun: noun };
   });
@@ -100,44 +103,76 @@ function createElementFromString(string) {
   return dummyEl.firstChild;
 }
 
-// Control flow logic
-// ----------------------------------------------------------------------------
+function compareMatches(a, b) {
+  // Array.prototype.sort sorting function for ordering results.
 
-var doc = document.documentElement;
-
-// Catch all bubbled keypress events.
-var keypressesOverTime = open(doc, 'keyup');
-
-// We're only interested in events on the action bar.
-var actionBarPressesOverTime = filter(keypressesOverTime, function (event) {
-  return event.target.id === 'action-bar';
-});
-
-// Create signal representing query entered into action bar.
-var actionBarValuesOverTime = map(actionBarPressesOverTime, function (event) {
-  return event.target.value.trim();
-});
-
-var suggestionClicksOverTime = open(document.getElementById('suggestions'), 'click');
-var suggestionValuesOverTime = map(suggestionClicksOverTime, function (e) {
-  var target = e.target;
-
-  if(target.tagName == 'SPAN') {
-    target = target.parentNode;
+  // a is less than b by some ordering criterion
+  if (a.score < b.score) {
+    return -1;
   }
-  // I'm not sure where the noun property comes from
-  // -GB
-  return target.noun;
-});
+  // a is greater than b by the ordering criterion.
+  if (a.score > b.score) {
+    return 1;
+  }
+  // a must be equal to b
+  return 0;
+}
 
-var searchQuery = merge([suggestionValuesOverTime, actionBarValuesOverTime]);
+function compareSuggestions(a, b) {
+  // Array.prototype.sort sorting function for ordering results.
 
-// Create signal representing query terms entered into action bar,
-// also repeats in `searchQuery` are dropped to avoid more work
-// down the flow.
-var searchTerms = map(dropRepeats(searchQuery), function(query) {
-  return query.split(/\s+/);
-});
+  // a is less than b by some ordering criterion
+  if (a[1] < b[1]) {
+    return -1;
+  }
+  // a is greater than b by the ordering criterion.
+  if (a[1] > b[1]) {
+    return 1;
+  }
+  // a must be equal to b
+  return 0;
+}
+
+function sort(reducible, sortingFunction) {
+  // Maybe a more efficient way to do this via reducible()?
+  var eventualArray = into(reducible, []);
+  return when(eventualArray, function (array) {
+    // Sort the results by score -- highest first.
+    return array.sort(sortingFunction);
+  });
+}
+
+function reverse(reducible) {
+  // Maybe a more efficient way to do this via reducible()?
+  var eventualArray = into(reducible, []);
+  return when(eventualArray, function (array) {
+    return array.reverse();
+  });
+}
+
+function sortFirstX(reducible, sampleSize, sortingFunction) {
+  // Gives you the
+  // Take the first 100 results and use those.
+  var firstX = take(reducible, sampleSize);
+  var bottomX = sort(firstX, sortingFunction);
+  return reverse(bottomX);
+}
+
+function createMatchHTML(match) {
+  // Creates the HTML string for a single match.
+
+  var appClassname = escStringForClassname(match.app.id);
+  var title = compileCaption(match.action, match.input);
+  var trailingText = (match.action.parameterized &&
+                      match.trailingText) ? match.trailingText :  '';
+
+  var renderFunc = renderType[match.inputType] || renderType['default'];
+
+  // Eventually, we need a better way to handle this stuff. Templating? Mustache? writer() from reflex?
+  return '<li class="action-match ' + appClassname + '">' +
+    renderFunc(match.input, title, trailingText) +
+    '</li>';
+}
 
 function searchWithVerb(terms) {
   var verbs = expand(terms, function(term) {
@@ -189,7 +224,7 @@ function searchWithVerb(terms) {
     return map(nouns, function(info) {
       if(!trailingText) {
         var noun = info[2][0].replace(/^\s*|\s$/g, '');
-        
+
         if(noun !== "") {
           var numWords = noun.split(/\s+/).length;
           // Slice off the noun plus the 1-word verb
@@ -210,15 +245,20 @@ function searchWithVerb(terms) {
   });
 }
 
-function searchWithNoun(terms) {
+function grepNounMatches(terms, nouns) {
+  // Return a stream of matches from a stream of nouns matching terms.
   // In this case we don't assume than any of the terms is a
   // verb so we create pattern for nouns from all the terms.
   var nounPattern = terms.join("[^\\s]* ");
-  var matches = grep(nounPattern, nouns, query("noun.serialized"));
-  return expand(matches, function(pair) {
+  return grep(nounPattern, nouns, query("noun.serialized"));
+}
+
+function expandNounMatchesToActions(nounMatches, actionsByType) {
+  return expand(nounMatches, function(pair) {
     var score = pair[1];
     var type = pair[0].type;
     var noun = pair[0].noun;
+
     // Filter verbs that can work with given noun type.
     var verbs = filter(actionsByType, function(verb) {
       return verb.type === type;
@@ -236,21 +276,78 @@ function searchWithNoun(terms) {
   });
 }
 
+// Control flow logic
+// ----------------------------------------------------------------------------
+
+var doc = document.documentElement;
+
+// Catch all bubbled keypress events.
+var keypressesOverTime = open(doc, 'keyup');
+var clicksOverTime = open(doc, 'click');
+
+// We're only interested in events on the action bar.
+var actionBarPressesOverTime = filter(keypressesOverTime, function (event) {
+  return event.target.id === 'action-bar';
+});
+
+// Create signal representing query entered into action bar.
+var actionBarValuesOverTime = map(actionBarPressesOverTime, function (event) {
+  return event.target.value.trim();
+});
+
+// Get all clicks that originated from an action-completion
+var completionClicksOverTime = filter(clicksOverTime, function (event) {
+  return event.target.className === 'action-completion';
+});
+var clickedCompletionTitleElementsOverTime = map(completionClicksOverTime, function (event) {
+  return event.target.getElementsByClassName('title')[0];
+});
+
+// Get all clicks that originated from an action-completion
+var completionTitleClicksOverTime = filter(clicksOverTime, function (event) {
+  return (
+    event.target.className === 'title' &&
+    event.target.parentNode.className === 'action-completion'
+  );
+});
+
+var clickedTitlesOfCompletionElementsOverTime = map(completionTitleClicksOverTime, function (event) {
+  return event.target;
+});
+
+var completionTitleElementsOverTime = merge([
+  clickedCompletionTitleElementsOverTime,
+  clickedTitlesOfCompletionElementsOverTime
+]);
+
+var completionValuesOverTime = map(completionTitleElementsOverTime, function (element) {
+  return element.textContent;
+});
+
+// Merge clicked suggested values stream and actionBar values stream.
+var searchQuery = merge([completionValuesOverTime, actionBarValuesOverTime]);
+
+// Create signal representing query terms entered into action bar,
+// also repeats in `searchQuery` are dropped to avoid more work
+// down the flow.
+var searchTerms = map(dropRepeats(searchQuery), function(query) {
+  return query.split(/\s+/);
+});
+
 // Continues signal representing search results for the entered query.
 // special `SOQ` value is used at as delimiter to indicate results for
 // new query. This can be used by writer to flush previous inputs and
 // start writing now ones.
-
-var results = expand(searchTerms, function(terms) {
+var resultSetsOverTime = map(searchTerms, function(terms) {
   if (!terms.length || !terms[0]) return SOQ;
 
-  var count = terms.length;
-  var first = terms[0];
-  var last = terms[count - 1];
+  // Search noun matches. Accesses closure variable NOUNS.
+  var nounMatches = grepNounMatches(terms, NOUNS);
 
-  return concat(SOQ,
-                searchWithVerb(terms),
-                searchWithNoun(terms));
+  return {
+    suggestions: nounMatches,
+    actions: merge([ searchWithVerb(terms), expandNounMatchesToActions(nounMatches, actionsByType) ])
+  };
 });
 
 var renderType = {
@@ -272,99 +369,62 @@ var renderType = {
   }
 };
 
-function renderActions(input, target, suggestionsEl) {
-  fold(input, function(match, result) {
-    var results = result.results;
-    var suggestions = result.suggestions;
-
-    // reset view (probably instead of removing it would be better to move
-    // it down and dim a little to make it clear it's history and not a match.
-    if (match === SOQ) {
-      target.innerHTML = "";
-      suggestionsEl.innerHTML = "";
-      return { suggestions: [],
-               results: [] };
-    }
-
-    var appClassname = escStringForClassname(match.app.id);
-    var title = compileCaption(match.action, match.input);
-    var trailingText = '';
-
-    if(match.action.parameterized && match.trailingText) {
-      trailingText = ' <span class="trailing">' + match.trailingText + '</span>';
-    }
-
-    var renderFunc = renderType[match.inputType] || renderType['default'];
-
-    // Eventually, we need a better way to handle this stuff. Templating? Mustache? writer() from reflex?
-    var view = createElementFromString(
-      '<li class="action-match ' + appClassname + '">' +
-        renderFunc(match.input, title, trailingText) +
-        '</li>'
-    );
-
-    // TODO: We should do binary search instead, but we
-    // can optimize this later.
-    results.push(match.score);
-    results.sort().reverse();
-    var index = results.lastIndexOf(match.score);
-    var prevous = target.children[index];
-    target.insertBefore(view, prevous);
-
-    try {
-
-    // Show the top 2 nouns as auto-completion suggestions
-    if(results[0] == match.score || results[1] == match.score) {
-      var el = createElementFromString(
-        '<li class="action-completion">' + 
-          '<span class="title">' +
-          match.input.serialized +
-          '</span>' +
-          '</li>'
-      );
-      el.noun = match.input.serialized;
-
-      if(suggestions.length) {
-        if(suggestions[0] < match.score) {
-          if(suggestions.length > 1) {
-            suggestionsEl.removeChild(suggestionsEl.children[1]);
-            suggestions.pop();
-          }
-
-          suggestionsEl.insertBefore(el, suggestionsEl.children[0]);
-          suggestions.unshift(match.score);
-        }
-        else if(suggestions[0] > match.score) {
-          if(suggestions.length > 1) {
-            suggestionsEl.removeChild(suggestionsEl.children[1]);
-            suggestions.pop();
-          }
-
-          suggestionsEl.appendChild(el);
-          suggestions.push(match.score);
-        }
-      }
-      else {
-        suggestionsEl.appendChild(el);
-        suggestions.push(match.score);
-      }
-    }
-
-    } catch(e) {
-      console.log(e)
-    }
-
-    return result;
-  }, { suggestions: [],
-       results: [] });
-}
-
 var actionBarElement = document.getElementById('action-bar');
-
-fold(suggestionValuesOverTime, function (value) {
+print(completionValuesOverTime);
+fold(completionValuesOverTime, function (value) {
   actionBarElement.value = value;
 });
 
-renderActions(results, 
-              document.getElementById('matches'),
-              document.getElementById('suggestions'));
+var matchesContainer = document.getElementById('matches');
+var suggestionsContainer = document.getElementById('suggestions');
+
+fold(resultSetsOverTime, function (resultSet) {
+  var actions = resultSet.actions;
+  var suggestions = resultSet.suggestions;
+
+  // Take the first 100 results and use as the sample size for sorting by score..
+  var top100Actions = sortFirstX(actions, 100, compareMatches);
+  // And take only the top 20.
+  var cappedResults = take(top100Actions, 20);
+
+  // Create the amalgamated HTML string.
+  var eventualHtml = fold(cappedResults, function (match, matches) {
+    return matches + createMatchHTML(match);
+  }, '');
+
+  // Wait for string to finish building, then assign as HTML.
+  fold(eventualHtml, function (html) {
+    matchesContainer.innerHTML = html;
+  });
+
+  // Take the first 100 results and use as the sample size for sorting by score..
+  var top100Suggestions = sortFirstX(suggestions, 100, compareSuggestions);
+  var cappedSuggestions = take(top100Suggestions, 4);
+
+  var suggestionTitles = map(cappedSuggestions, function (suggestion) {
+    return suggestion[0].noun.serialized;
+  });
+
+  var eventualSuggestionsHtml = fold(suggestionTitles, function (title, html) {
+    return html + '<li class="action-completion">' + 
+      '<span class="title">' +
+      title +
+      '</span>' +
+      '</li>'
+  }, '');
+
+  fold(eventualSuggestionsHtml, function (html) {
+    suggestionsContainer.innerHTML = html;
+  });
+
+  // Filter actions down to "start of query" actions.
+  var SOQs = filter(actions, function (match) {
+    return match === SOQ;
+  });
+
+  // Clear matches for every start of query.
+  fold(SOQs, function () {
+    matchesContainer.innerHTML = '';
+  });
+});
+
