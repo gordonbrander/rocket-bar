@@ -2295,40 +2295,43 @@ module.exports = zip
 
 });
 
-require.define("/node_modules/grep-reduce/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./grep.js"}
+require.define("/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {}
 });
 
-require.define("/node_modules/grep-reduce/grep.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
+require.define("/grep-reduce.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
 
 var filter = require("reducers/filter")
 var map = require("reducers/map")
 var Pattern = require("pattern-exp")
-var score = require("match-score")
+var score = require("./match-score")
 
 function isPositiveScore(data) { return data[1] > 0 }
 
 function grep(pattern, data, serialize) {
   /**
-  Function returns values from `data` paired with the match score for
-  `pattern`. If there is no match value will be excluded from the result.
+Function returns values from `data` paired with the match score for
+`pattern`. If there is no match value will be excluded from the result.
 
-  ## Examples
+## Examples
 
-  **/
+**/
  
   if (typeof(serialize) !== "function") serialize = String
   // Creating pattern from the given input.
   pattern = Pattern(pattern || "", "i")
   // Map to data value and pattern match score pairs.
   var scoredData = map(data, function(value) {
-    return [ value, score(pattern, serialize(value)) ]
+    var val = serialize(value)
+    var match = pattern.exec(val)
+
+    // PATCH: return the actual match info so we can do stuff with it (jwl)
+    return [ value, score(match, val), match ]
   })
   // Filter only matches who's score is positive.
   return filter(scoredData, isPositiveScore)
 }
 
 module.exports = grep
-
 });
 
 require.define("/node_modules/pattern-exp/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./pattern-exp.js"}
@@ -2383,28 +2386,25 @@ module.exports = Pattern
 
 });
 
-require.define("/node_modules/grep-reduce/node_modules/match-score/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./match-score.js"}
-});
-
-require.define("/node_modules/grep-reduce/node_modules/match-score/match-score.js",function(require,module,exports,__dirname,__filename,process,global){/* vim:set ts=2 sw=2 sts=2 expandtab */
+require.define("/match-score.js",function(require,module,exports,__dirname,__filename,process,global){/* vim:set ts=2 sw=2 sts=2 expandtab */
 /*jshint asi: true undef: true es5: true node: true browser: true devel: true
-         forin: true latedef: false globalstrict: true*/
+forin: true latedef: false globalstrict: true*/
 
 "use strict";
 
 function Calculator(SCORE_BASE, SCORE_LENGTH) {
   var SCORE_INDEX = 1 - SCORE_BASE - SCORE_LENGTH
-  return function score(pattern, input) {
+  return function score(match, input) {
     /**
-    Calculates the score for use in suggestions from
-    a result array `match` of `RegExp#exec`.
-    **/
+Calculates the score for use in suggestions from
+a result array `match` of `RegExp#exec`.
+**/
     input = String(input)
-    var match, length = input.length, value = null
-    if ((match = pattern.exec(input))) {
+    var length = input.length, value = null
+    if (match) {
       value = SCORE_BASE +
               SCORE_LENGTH * Math.sqrt(match[0].length / length) +
-              SCORE_INDEX  * (1 - match.index / length)
+              SCORE_INDEX * (1 - match.index / length)
     }
     return value
   }
@@ -2414,7 +2414,6 @@ var score = Calculator(0.3, 0.25)
 score.make = Calculator
 
 module.exports = score
-
 });
 
 require.define("/node_modules/functional/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./index.js"}
@@ -2659,9 +2658,6 @@ module.exports = reductions
 
 });
 
-require.define("/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {}
-});
-
 require.define("/kicks.js",function(require,module,exports,__dirname,__filename,process,global){/* This Source Code Form is subject to the terms of the Mozilla Public
  * License, v. 2.0. If a copy of the MPL was not distributed with this
  * file, You can obtain one at http://mozilla.org/MPL/2.0/. */
@@ -2742,7 +2738,8 @@ require.define("/assets/apps.json",function(require,module,exports,__dirname,__f
       {
         "names": ["sms", "mms", "msg", "txt", "text", "message"],
         "params": ["contact", "message"],
-        "caption": "SMS %"
+        "caption": "SMS %",
+        "parameterized": true
       }
     ]
   },
@@ -3293,31 +3290,131 @@ require.define("/assets/contacts.json",function(require,module,exports,__dirname
 });
 
 require.define("/assets/music.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = [
-  "The Album Leaf",
-  "Ali Farka Toure",
-  "Amiina",
-  "Anni Rossi",
-  "Arcade Fire",
-  "Arthur & Yu",
-  "Au",
-  "Band of Horses",
-  "Beirut",
-  "Billie Holiday",
-  "Burial",
-  "Wilco",
-  "Justice",
-  "Bishop Allen",
-  "Sigur Ros",
-  "Bjork",
-  "The Black Keys",
-  "Bob Dylan",
-  "Bodies of Water",
-  "Bon Iver",
-  "Counting Crows",
-  "Death Cab for Cutie",
-  "Fleet Foxes",
-  "Fleetwood Mac",
-  "The Innocence Mission"
+  {
+    "artist":"The Album Leaf",
+    "serialized":"The Album Leaf",
+    "subtitle":"Artist / 29 songs / 3 albums"
+  },
+  {
+    "artist":"Ali Farka Toure",
+    "serialized":"Ali Farka Toure",
+    "subtitle":"Artist / 27 songs / 3 albums"
+  },
+  {
+    "artist":"Amiina",
+    "serialized":"Amiina",
+    "subtitle":"Artist / 15 songs / 3 albums"
+  },
+  {
+    "artist":"Anni Rossi",
+    "serialized":"Anni Rossi",
+    "subtitle":"Artist / 21 songs / 2 albums"
+  },
+  {
+    "artist":"Arcade Fire",
+    "serialized":"Arcade Fire",
+    "subtitle":"Artist / 22 songs / 3 albums"
+  },
+  {
+    "artist":"Arthur & Yu",
+    "serialized":"Arthur & Yu",
+    "subtitle":"Artist / 18 songs / 3 albums"
+  },
+  {
+    "artist":"Au",
+    "serialized":"Au",
+    "subtitle":"Artist / 20 songs / 2 albums"
+  },
+  {
+    "artist":"Band of Horses",
+    "serialized":"Band of Horses",
+    "subtitle":"Artist / 28 songs / 3 albums"
+  },
+  {
+    "artist":"Beirut",
+    "serialized":"Beirut",
+    "subtitle":"Artist / 7 songs / 2 albums"
+  },
+  {
+    "artist":"Billie Holiday",
+    "serialized":"Billie Holiday",
+    "subtitle":"Artist / 25 songs / 4 albums"
+  },
+  {
+    "artist":"Burial",
+    "serialized":"Burial",
+    "subtitle":"Artist / 14 songs / 2 albums"
+  },
+  {
+    "artist":"Wilco",
+    "serialized":"Wilco",
+    "subtitle":"Artist / 30 songs / 3 albums"
+  },
+  {
+    "artist":"Justice",
+    "serialized":"Justice",
+    "subtitle":"Artist / 8 songs / 1 album"
+  },
+  {
+    "artist":"Bishop Allen",
+    "serialized":"Bishop Allen",
+    "subtitle":"Artist / 28 songs / 4 albums"
+  },
+  {
+    "artist":"Sigur Ros",
+    "serialized":"Sigur Ros",
+    "subtitle":"Artist / 13 songs / 2 albums"
+  },
+  {
+    "artist":"Bjork",
+    "serialized":"Bjork",
+    "subtitle":"Artist / 19 songs / 2 albums"
+  },
+  {
+    "artist":"The Black Keys",
+    "serialized":"The Black Keys",
+    "subtitle":"Artist / 5 songs / 2 albums"
+  },
+  {
+    "artist":"Bob Dylan",
+    "serialized":"Bob Dylan",
+    "subtitle":"Artist / 12 songs / 3 albums"
+  },
+  {
+    "artist":"Bodies of Water",
+    "serialized":"Bodies of Water",
+    "subtitle":"Artist / 8 songs / 1 album"
+  },
+  {
+    "artist":"Bon Iver",
+    "serialized":"Bon Iver",
+    "subtitle":"Artist / 28 songs / 4 albums"
+  },
+  {
+    "artist":"Counting Crows",
+    "serialized":"Counting Crows",
+    "subtitle":"Artist / 22 songs / 2 albums"
+  },
+  {
+    "artist":"Death Cab for Cutie",
+    "serialized":"Death Cab for Cutie",
+    "subtitle":"Artist / 22 songs / 3 albums"
+  },
+  {
+    "artist":"Fleet Foxes",
+    "serialized":"Fleet Foxes",
+    "subtitle":"Artist / 21 songs / 3 albums"
+  },
+  {
+    "artist":"Fleetwood Mac",
+    "serialized":"Fleetwood Mac",
+    "subtitle":"Artist / 15 songs / 3 albums"
+  },
+  {
+    "artist":"The Innocence Mission",
+    "serialized":"The Innocence Mission",
+    "subtitle":"Artist / 8 songs / 1 album"
+  }
 ]
 ;
 
@@ -3346,7 +3443,7 @@ var fold = require('reducers/fold');
 var open = require('dom-reduce/event');
 var print = require('reducers/debug/print');
 var zip = require('zip-reduce');
-var grep = require('grep-reduce');
+var grep = require('./grep-reduce');
 var compose = require('functional/compose');
 var partial = require('functional/partial');
 var field = require('oops/field');
@@ -3372,49 +3469,45 @@ var SOQ = new String('Start of query');
 var actionsByVerb = expand(apps, function(app) {
   return expand(app.actions, function(action) {
     return map(action.names, function(name) {
-      return { name: name, action: action, app: app }
-    })
-  })
-})
+      return { name: name, action: action, app: app };
+    });
+  });
+});
 
 // Create live stream of all possible actions paired with types
 // of nouns they can do actions on.
 var actionsByType = expand(apps, function(app) {
   return expand(app.actions, function(action) {
     return map(action.params, function(type) {
-      return { type: type, action: action, app: app }
-    })
-  })
-})
+      return { type: type, action: action, app: app };
+    });
+  });
+});
 
 // All the data available, probably interface will need to be different
 // likely application should define hooks for nouns they can produce, such
 // that services could be easily incorporated. For now only thing we really
 // care about is `serialized` property that search will be performed over.
 var data = {
-  artist: map(music, function(name) {
-    return {
-      artist: name,
-      serialized: name
-    }
-  }),
+  artist: music,
   contact: contacts
 }
 
 // Live stream of all the noun data paired with types.
 var nouns = expand(Object.keys(data), function(type) {
   return map(data[type], function(noun) {
-    return { type: type, noun: noun }
-  })
-})
+    return { type: type, noun: noun };
+  });
+});
 
 // Supporting functions
 // ----------------------------------------------------------------------------
 
 // Takes action object and input for that action and returns string
 // representing caption for the element rendered.
-function compileCaption(action, input) {
-  return action.caption.replace('%', input.serialized);
+function compileCaption(action, input, trailingText) {
+  var content = action.caption.replace('%', input.serialized);
+  return content;
 }
 
 function escStringForClassname(string) {
@@ -3460,106 +3553,239 @@ var searchTerms = map(dropRepeats(searchQuery), function(query) {
 });
 
 
-function searchWithVerb(verb, terms) {
-  // We must be more intelligent than this but so far we assume
-  // that the verb is either first term or last.
-  var verbPattern = "^" + verb + "|^$"
-  // The rest terms are joined such that they can represent beginnings
-  // of the words.
-  var nounPattern = terms.join("[^\\s]* ")
-  var verbs = grep(verbPattern, actionsByVerb, field("name"))
+function searchWithVerb(terms) {
+  var verbs = expand(terms, function(term) {
+    return grep('^' + term, actionsByVerb, field("name"));
+  });
 
-  return expand(verbs, function(pair) {
+  return expand(verbs, function(info) {
     // So far we don't support multiple action params so we just
     // pick the first one
-    var app = pair[0].app
-    var action = pair[0].action
-    var score = pair[1]
+    var app = info[0].app;
+    var action = info[0].action;
+    var verb = info[0].name;
+    var score = info[1];
+    var match = info[2];
+    var trailingText = null;
 
-    var type = action.params[0]
-    var nouns = grep(nounPattern, data[type], field("serialized"))
-    return map(nouns, function(pair) {
+    var i = terms.map(String.toLowerCase).indexOf(match[0]);
+    var nounPattern;
+    var suffix = "[^\\s]*";
+    if(i === 0) {
+      // The noun could be the next 1 or 2 words
+      nounPattern = "";
+
+      if(terms.length > 1) {
+        nounPattern = terms[1] + suffix;
+
+        if(terms.length > 2) {
+          nounPattern += " (?:" + terms[2] + suffix + ")?";
+        }
+      }
+      else {
+        nounPattern = "";
+      }
+    }
+    else if(i > 0) {
+      // The noun precedes the verb
+      var nouns = terms.slice(0, i);
+      nounPattern = nouns.join(suffix + " ");
+      trailingText = terms.slice(i + 1).join(" ");
+    }
+    else {
+      // Should never get here since the matched term should always be
+      // in `terms`
+      alert('bad');
+    }
+
+    var type = action.params[0];
+    var nouns = grep(nounPattern, data[type], field("serialized"));
+    return map(nouns, function(info) {
+      if(!trailingText) {
+        var noun = info[2][0].replace(/^\s*|\s$/g, '');
+        
+        if(noun !== "") {
+          var numWords = noun.split(/\s+/).length;
+          // Slice off the noun plus the 1-word verb
+          trailingText = terms.slice(numWords + 1).join(' ');
+        }
+      }
+
       return {
         app: app,
         action: action,
         // Should we should visually outline actual parts that match?
-        input: pair[0],
-        score: score + pair[1]
-      }
-    })
-  })
+        input: info[0],
+        inputType: type,
+        score: score + info[1],
+        trailingText: trailingText
+      };
+    });
+  });
 }
 
 function searchWithNoun(terms) {
   // In this case we don't assume than any of the terms is a
   // verb so we create pattern for nouns from all the terms.
-  var nounPattern = terms.join("[^\\s]* ")
-  var matches = grep(nounPattern, nouns, query("noun.serialized"))
+  var nounPattern = terms.join("[^\\s]* ");
+  var matches = grep(nounPattern, nouns, query("noun.serialized"));
   return expand(matches, function(pair) {
-    var score = pair[1]
-    var type = pair[0].type
-    var noun = pair[0].noun
+    var score = pair[1];
+    var type = pair[0].type;
+    var noun = pair[0].noun;
     // Filter verbs that can work with given noun type.
     var verbs = filter(actionsByType, function(verb) {
-      return verb.type === type
-    })
+      return verb.type === type;
+    });
 
     return map(verbs, function(verb) {
       return {
         app: verb.app,
         action: verb.action,
         input: noun,
+        inputType: type,
         score: score
-      }
-    })
-  })
+      };
+    });
+  });
 }
 
 // Continues signal representing search results for the entered query.
 // special `SOQ` value is used at as delimiter to indicate results for
 // new query. This can be used by writer to flush previous inputs and
 // start writing now ones.
+
 var results = expand(searchTerms, function(terms) {
-  if (!terms.length || !terms[0]) return SOQ
+  if (!terms.length || !terms[0]) return SOQ;
 
-  var count = terms.length
-  var first = terms[0]
-  var last = terms[count - 1]
+  var count = terms.length;
+  var first = terms[0];
+  var last = terms[count - 1];
 
-  return concat(SOQ, merge([
-    searchWithVerb(first, terms.slice(1)),
-    searchWithVerb(last, terms.slice(0, count - 1))
-  ]), searchWithNoun(terms))
-})
+  return concat(SOQ,
+                searchWithVerb(terms),
+                searchWithNoun(terms));
+});
 
-function renderActions(input, target) {
+var renderType = {
+  'contact': function(input, title, trailingText) {
+    var subtitle = trailingText || input.tel;
+
+    return '<article class="action-entry">' +
+      '<h1 class="title">' + title + '</h1>' +
+      '<span class="subtitle">' + subtitle + '</span>' +
+      '</article>';
+  },
+
+  'default': function(input, title, trailingText) {
+    var subtitle = trailingText || input.subtitle;
+    return '<article class="action-entry">' +
+      '<h1 class="title">' + title + '</h1>' +
+      '<span class="subtitle">' + subtitle + '</span>' +
+      '</article>';
+  }
+};
+
+function renderActions(input, target, suggestionsEl) {
   fold(input, function(match, result) {
+    var results = result.results;
+    var suggestions = result.suggestions;
+
     // reset view (probably instead of removing it would be better to move
     // it down and dim a little to make it clear it's history and not a match.
     if (match === SOQ) {
-      target.innerHTML = ""
-      return []
+      target.innerHTML = "";
+      suggestionsEl.innerHTML = "";
+      return { suggestions: [],
+               results: [] };
     }
 
     var appClassname = escStringForClassname(match.app.id);
     var title = compileCaption(match.action, match.input);
+    var trailingText = '';
+
+    if(match.action.parameterized && match.trailingText) {
+      trailingText = ' <span class="trailing">' + match.trailingText + '</span>';
+    }
+
+    var renderFunc = renderType[match.inputType] || renderType['default'];
+
     // Eventually, we need a better way to handle this stuff. Templating? Mustache? writer() from reflex?
-    var view = createElementFromString('<li class="action-match ' + appClassname + '"><article class="action-entry"><h1 class="title">' + title + '</h1></article></li>');
+    var view = createElementFromString(
+      '<li class="action-match ' + appClassname + '">' +
+        renderFunc(match.input, title, trailingText) +
+        '</li>'
+    );
 
     // TODO: We should do binary search instead, but we
     // can optimize this later.
-    result.push(match.score)
-    result = result.sort().reverse()
-    var index = result.lastIndexOf(match.score)
-    var prevous = target.children[index]
+    results.push(match.score);
+    results.sort().reverse();
+    var index = results.lastIndexOf(match.score);
+    var prevous = target.children[index];
+    target.insertBefore(view, prevous);
 
-    target.insertBefore(view, prevous)
+    try {
 
-    return result
-  }, [])
+    // Show the top 2 nouns as auto-completion suggestions
+    if(results[0] == match.score || results[1] == match.score) {
+      var el = createElementFromString(
+        '<li class="action-completion">' + 
+          '<span class="title">' +
+          match.input.serialized +
+          '</span>' +
+          '</li>'
+      );
+      el.noun = match.input.serialized;
+
+      if(suggestions.length) {
+        if(suggestions[0] < match.score) {
+          if(suggestions.length > 1) {
+            suggestionsEl.removeChild(suggestionsEl.children[1]);
+            suggestions.pop();
+          }
+
+          suggestionsEl.insertBefore(el, suggestionsEl.children[0]);
+          suggestions.unshift(match.score);
+        }
+        else if(suggestions[0] > match.score) {
+          if(suggestions.length > 1) {
+            suggestionsEl.removeChild(suggestionsEl.children[1]);
+            suggestions.pop();
+          }
+
+          suggestionsEl.appendChild(el);
+          suggestions.push(match.score);
+        }
+      }
+      else {
+        suggestionsEl.appendChild(el);
+        suggestions.push(match.score);
+      }
+    }
+
+    } catch(e) {
+      console.log(e)
+    }
+
+    return result;
+  }, { suggestions: [],
+       results: [] });
 }
-print(results);
-renderActions(results,  document.getElementById('matches'))
+
+document.getElementById('suggestions').addEventListener('click', function(e) {
+  var target = e.target;
+
+  if(target.tagName == 'SPAN') {
+    target = target.parentNode;
+  }
+
+  var bar = document.getElementById('action-bar').value = target.noun;
+});
+
+renderActions(results, 
+              document.getElementById('matches'),
+              document.getElementById('suggestions'));
 
 });
 require("/index.js");
