@@ -118,6 +118,23 @@ function compareMatches(a, b) {
   return 0;
 }
 
+function sort(reducible, sortingFunction) {
+  // Maybe a more efficient way to do this via reducible()?
+  var eventualArray = into(reducible, []);
+  return when(eventualArray, function (array) {
+    // Sort the results by score -- highest first.
+    return array.sort(sortingFunction);
+  });
+}
+
+function reverse(reducible) {
+  // Maybe a more efficient way to do this via reducible()?
+  var eventualArray = into(reducible, []);
+  return when(eventualArray, function (array) {
+    return array.reverse();
+  });
+}
+
 function createMatchHTML(match) {
   // Creates the HTML string for a single match.
 
@@ -280,17 +297,16 @@ var searchTerms = map(dropRepeats(searchQuery), function(query) {
 // special `SOQ` value is used at as delimiter to indicate results for
 // new query. This can be used by writer to flush previous inputs and
 // start writing now ones.
-
-var resultsOverTime = map(searchTerms, function(terms) {
+var resultSetsOverTime = map(searchTerms, function(terms) {
   if (!terms.length || !terms[0]) return SOQ;
-
-  var count = terms.length;
-  var first = terms[0];
-  var last = terms[count - 1];
 
   // Search noun matches. Accesses closure variable NOUNS.
   var nounMatches = grepNounMatches(terms, NOUNS);
-  return merge([ searchWithVerb(terms), expandNounMatchesToActions(nounMatches, actionsByType)]);
+
+  return {
+    suggestions: nounMatches,
+    actions: merge([ searchWithVerb(terms), expandNounMatchesToActions(nounMatches, actionsByType) ])
+  };
 });
 
 var renderType = {
@@ -406,34 +422,36 @@ fold(suggestionValuesOverTime, function (value) {
 });
 
 var matchesContainer = document.getElementById('matches');
-fold(resultsOverTime, function (results) {
-  var soqsOverTime = filter(results, function (match) {
+fold(resultSetsOverTime, function (resultSet) {
+  var actions = resultSet.actions;
+  var suggestions = resultSet.suggestions;
+
+  // Take the first 100 results and use those.
+  var first100 = take(actions, 100);
+  var bottom100 = sort(first100, compareMatches);
+  var top100 = reverse(bottom100);
+
+  // And take only the top 20.
+  var cappedResults = take(top100, 20);
+
+  // Create the amalgamated HTML string.
+  var eventualHtml = fold(cappedResults, function (match, matches) {
+    return matches + createMatchHTML(match);
+  }, '');
+
+  // Wait for string to finish building, then assign as HTML.
+  fold(eventualHtml, function (html) {
+    matchesContainer.innerHTML = html;
+  });
+
+  // Filter actions down to "start of query" actions.
+  var soqsOverTime = filter(actions, function (match) {
     return match === SOQ;
   });
 
-  // Take the first 100 results and use those.
-  var first100 = take(results, 100);
-  // Capture the first 100 so we can sort it.
-  var capturedResults = into(first100, []);
-
-  // Capture eventual transformed 
-  var eventualHtml = when(capturedResults, function (capturedResults) {
-    // Sort the results by score -- highest first.
-    var sortedResults = capturedResults.sort(compareMatches).reverse();
-    // And take only the top 20.
-    var cappedResults = take(sortedResults, 20);
-
-    return fold(cappedResults, function (match, matches) {
-      return matches + createMatchHTML(match);
-    }, '');
-  });
-
+  // Clear matches for every start of query.
   fold(soqsOverTime, function (soq) {
     matchesContainer.innerHTML = '';
-  });
-
-  fold(eventualHtml, function (html) {
-    matchesContainer.innerHTML = html;
   });
 });
 
