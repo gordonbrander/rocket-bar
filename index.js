@@ -68,23 +68,7 @@ var data = {
       serialized: name
     }
   }),
-  contact: map(contacts, function(name) {
-    return {
-      serialized: name,
-      name: name,
-      org: '',
-      tel: '',
-      url: '',
-      adr: {
-        street_address: '',
-        locality: '',
-        region: '',
-        postal_code: '',
-        country_name: ''
-      },
-      note: ''
-    }
-  })
+  contact: contacts
 }
 
 // Live stream of all the noun data paired with types.
@@ -244,5 +228,5 @@ function renderActions(input, target) {
     return result
   }, [])
 }
-
+print(results);
 renderActions(results,  document.getElementById('matches'))
