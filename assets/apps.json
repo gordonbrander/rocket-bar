@@ -38,5 +38,25 @@
         "caption": "%"
       }
     ]
+  },
+  {
+    "id": "email.gaiamobile.org",
+    "actions": [
+      {
+        "names": ["mail", "email", "send"],
+        "params": ["contact"],
+        "caption": "Email %"
+      }
+    ]
+  },
+  {
+    "id": "facebook.com",
+    "actions": [
+      {
+        "names": ["fb"],
+        "params": ["contact"],
+        "caption": "%"
+      }
+    ]
   }
 ]
