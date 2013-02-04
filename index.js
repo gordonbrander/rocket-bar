@@ -112,7 +112,6 @@ var doc = document.documentElement;
 
 // Catch all bubbled keypress events.
 var keypressesOverTime = open(doc, 'keyup');
-var changesOverTime = open(document.getElementById('action-bar'), 'change');
 
 // We're only interested in events on the action bar.
 var actionBarPressesOverTime = filter(keypressesOverTime, function (event) {
@@ -120,7 +119,7 @@ var actionBarPressesOverTime = filter(keypressesOverTime, function (event) {
 });
 
 // Create signal representing query entered into action bar.
-var searchQuery = map(merge(actionBarPressesOverTime, changesOverTime), function (event) {
+var searchQuery = map(actionBarPressesOverTime, function (event) {
   return event.target.value.trim();
 });
 
@@ -315,7 +314,6 @@ function renderActions(input, target, suggestionsEl) {
           '</li>'
       );
       el.noun = match.input.serialized;
-      console.log(el, el.noun);
 
       if(suggestions.length) {
         if(suggestions[0] < match.score) {
@@ -359,7 +357,7 @@ document.getElementById('suggestions').addEventListener('click', function(e) {
     target = target.parentNode;
   }
 
-  document.getElementById('action-bar').value = target.noun;
+  var bar = document.getElementById('action-bar').value = target.noun;
 });
 
 renderActions(results, 
