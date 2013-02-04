@@ -70,7 +70,7 @@ var data = {
 }
 
 // Live stream of all the noun data paired with types.
-var nouns = expand(Object.keys(data), function(type) {
+var NOUNS = expand(Object.keys(data), function(type) {
   return map(data[type], function(noun) {
     return { type: type, noun: noun };
   });
@@ -133,45 +133,6 @@ function createMatchHTML(match) {
     renderFunc(match.input, title, trailingText) +
     '</li>';
 }
-
-// Control flow logic
-// ----------------------------------------------------------------------------
-
-var doc = document.documentElement;
-
-// Catch all bubbled keypress events.
-var keypressesOverTime = open(doc, 'keyup');
-
-// We're only interested in events on the action bar.
-var actionBarPressesOverTime = filter(keypressesOverTime, function (event) {
-  return event.target.id === 'action-bar';
-});
-
-// Create signal representing query entered into action bar.
-var actionBarValuesOverTime = map(actionBarPressesOverTime, function (event) {
-  return event.target.value.trim();
-});
-
-var suggestionClicksOverTime = open(document.getElementById('suggestions'), 'click');
-var suggestionValuesOverTime = map(suggestionClicksOverTime, function (e) {
-  var target = e.target;
-
-  if(target.tagName == 'SPAN') {
-    target = target.parentNode;
-  }
-  // I'm not sure where the noun property comes from
-  // -GB
-  return target.noun;
-});
-
-var searchQuery = merge([suggestionValuesOverTime, actionBarValuesOverTime]);
-
-// Create signal representing query terms entered into action bar,
-// also repeats in `searchQuery` are dropped to avoid more work
-// down the flow.
-var searchTerms = map(dropRepeats(searchQuery), function(query) {
-  return query.split(/\s+/);
-});
 
 function searchWithVerb(terms) {
   var verbs = expand(terms, function(term) {
@@ -244,15 +205,20 @@ function searchWithVerb(terms) {
   });
 }
 
-function searchWithNoun(terms) {
+function grepNounMatches(terms, nouns) {
+  // Return a stream of matches from a stream of nouns matching terms.
   // In this case we don't assume than any of the terms is a
   // verb so we create pattern for nouns from all the terms.
   var nounPattern = terms.join("[^\\s]* ");
-  var matches = grep(nounPattern, nouns, query("noun.serialized"));
-  return expand(matches, function(pair) {
+  return grep(nounPattern, nouns, query("noun.serialized"));
+}
+
+function expandNounMatchesToActions(nounMatches, actionsByType) {
+  return expand(nounMatches, function(pair) {
     var score = pair[1];
     var type = pair[0].type;
     var noun = pair[0].noun;
+
     // Filter verbs that can work with given noun type.
     var verbs = filter(actionsByType, function(verb) {
       return verb.type === type;
@@ -270,6 +236,46 @@ function searchWithNoun(terms) {
   });
 }
 
+// Control flow logic
+// ----------------------------------------------------------------------------
+
+var doc = document.documentElement;
+
+// Catch all bubbled keypress events.
+var keypressesOverTime = open(doc, 'keyup');
+
+// We're only interested in events on the action bar.
+var actionBarPressesOverTime = filter(keypressesOverTime, function (event) {
+  return event.target.id === 'action-bar';
+});
+
+// Create signal representing query entered into action bar.
+var actionBarValuesOverTime = map(actionBarPressesOverTime, function (event) {
+  return event.target.value.trim();
+});
+
+var suggestionClicksOverTime = open(document.getElementById('suggestions'), 'click');
+var suggestionValuesOverTime = map(suggestionClicksOverTime, function (e) {
+  var target = e.target;
+
+  if(target.tagName == 'SPAN') {
+    target = target.parentNode;
+  }
+  // I'm not sure where the noun property comes from
+  // -GB
+  return target.noun;
+});
+
+// Merge clicked suggested values stream and actionBar values stream.
+var searchQuery = merge([suggestionValuesOverTime, actionBarValuesOverTime]);
+
+// Create signal representing query terms entered into action bar,
+// also repeats in `searchQuery` are dropped to avoid more work
+// down the flow.
+var searchTerms = map(dropRepeats(searchQuery), function(query) {
+  return query.split(/\s+/);
+});
+
 // Continues signal representing search results for the entered query.
 // special `SOQ` value is used at as delimiter to indicate results for
 // new query. This can be used by writer to flush previous inputs and
@@ -282,7 +288,9 @@ var resultsOverTime = map(searchTerms, function(terms) {
   var first = terms[0];
   var last = terms[count - 1];
 
-  return merge([ searchWithVerb(terms), searchWithNoun(terms)]);
+  // Search noun matches. Accesses closure variable NOUNS.
+  var nounMatches = grepNounMatches(terms, NOUNS);
+  return merge([ searchWithVerb(terms), expandNounMatchesToActions(nounMatches, actionsByType)]);
 });
 
 var renderType = {
