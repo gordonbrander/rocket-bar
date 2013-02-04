@@ -112,6 +112,7 @@ var doc = document.documentElement;
 
 // Catch all bubbled keypress events.
 var keypressesOverTime = open(doc, 'keyup');
+var changesOverTime = open(document.getElementById('action-bar'), 'change');
 
 // We're only interested in events on the action bar.
 var actionBarPressesOverTime = filter(keypressesOverTime, function (event) {
@@ -119,7 +120,7 @@ var actionBarPressesOverTime = filter(keypressesOverTime, function (event) {
 });
 
 // Create signal representing query entered into action bar.
-var searchQuery = map(actionBarPressesOverTime, function (event) {
+var searchQuery = map(merge(actionBarPressesOverTime, changesOverTime), function (event) {
   return event.target.value.trim();
 });
 
@@ -302,8 +303,6 @@ function renderActions(input, target, suggestionsEl) {
     var prevous = target.children[index];
     target.insertBefore(view, prevous);
 
-    var noun = match.input.serialized;
-
     try {
 
     // Show the top 2 nouns as auto-completion suggestions
@@ -311,10 +310,12 @@ function renderActions(input, target, suggestionsEl) {
       var el = createElementFromString(
         '<li class="action-completion">' + 
           '<span class="title">' +
-          noun +
+          match.input.serialized +
           '</span>' +
           '</li>'
       );
+      el.noun = match.input.serialized;
+      console.log(el, el.noun);
 
       if(suggestions.length) {
         if(suggestions[0] < match.score) {
@@ -350,6 +351,16 @@ function renderActions(input, target, suggestionsEl) {
   }, { suggestions: [],
        results: [] });
 }
+
+document.getElementById('suggestions').addEventListener('click', function(e) {
+  var target = e.target;
+
+  if(target.tagName == 'SPAN') {
+    target = target.parentNode;
+  }
+
+  document.getElementById('action-bar').value = target.noun;
+});
 
 renderActions(results, 
               document.getElementById('matches'),
