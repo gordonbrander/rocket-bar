@@ -224,7 +224,7 @@ function searchWithVerb(terms) {
     return map(nouns, function(info) {
       if(!trailingText) {
         var noun = info[2][0].replace(/^\s*|\s$/g, '');
-        
+
         if(noun !== "") {
           var numWords = noun.split(/\s+/).length;
           // Slice off the noun plus the 1-word verb
@@ -351,93 +351,6 @@ var renderType = {
   }
 };
 
-function renderActions(input, target, suggestionsEl) {
-  fold(input, function(match, result) {
-    var results = result.results;
-    var suggestions = result.suggestions;
-
-    // reset view (probably instead of removing it would be better to move
-    // it down and dim a little to make it clear it's history and not a match.
-    if (match === SOQ) {
-      target.innerHTML = "";
-      suggestionsEl.innerHTML = "";
-      return { suggestions: [],
-               results: [] };
-    }
-
-    var appClassname = escStringForClassname(match.app.id);
-    var title = compileCaption(match.action, match.input);
-    var trailingText = '';
-
-    if(match.action.parameterized && match.trailingText) {
-      trailingText = ' <span class="trailing">' + match.trailingText + '</span>';
-    }
-
-    var renderFunc = renderType[match.inputType] || renderType['default'];
-
-    // Eventually, we need a better way to handle this stuff. Templating? Mustache? writer() from reflex?
-    var view = createElementFromString(
-      '<li class="action-match ' + appClassname + '">' +
-        renderFunc(match.input, title, trailingText) +
-        '</li>'
-    );
-
-    // TODO: We should do binary search instead, but we
-    // can optimize this later.
-    results.push(match.score);
-    results.sort().reverse();
-    var index = results.lastIndexOf(match.score);
-    var prevous = target.children[index];
-    target.insertBefore(view, prevous);
-
-    try {
-
-    // Show the top 2 nouns as auto-completion suggestions
-    if(results[0] == match.score || results[1] == match.score) {
-      var el = createElementFromString(
-        '<li class="action-completion">' + 
-          '<span class="title">' +
-          match.input.serialized +
-          '</span>' +
-          '</li>'
-      );
-      el.noun = match.input.serialized;
-
-      if(suggestions.length) {
-        if(suggestions[0] < match.score) {
-          if(suggestions.length > 1) {
-            suggestionsEl.removeChild(suggestionsEl.children[1]);
-            suggestions.pop();
-          }
-
-          suggestionsEl.insertBefore(el, suggestionsEl.children[0]);
-          suggestions.unshift(match.score);
-        }
-        else if(suggestions[0] > match.score) {
-          if(suggestions.length > 1) {
-            suggestionsEl.removeChild(suggestionsEl.children[1]);
-            suggestions.pop();
-          }
-
-          suggestionsEl.appendChild(el);
-          suggestions.push(match.score);
-        }
-      }
-      else {
-        suggestionsEl.appendChild(el);
-        suggestions.push(match.score);
-      }
-    }
-
-    } catch(e) {
-      console.log(e)
-    }
-
-    return result;
-  }, { suggestions: [],
-       results: [] });
-}
-
 var actionBarElement = document.getElementById('action-bar');
 
 fold(suggestionValuesOverTime, function (value) {
@@ -451,7 +364,7 @@ fold(resultSetsOverTime, function (resultSet) {
   var actions = resultSet.actions;
   var suggestions = resultSet.suggestions;
 
-  // Take the first 100 results and use those.
+  // Take the first 100 results and use as the sample size for sorting by score..
   var top100Actions = sortFirstX(actions, 100, compareMatches);
   // And take only the top 20.
   var cappedResults = take(top100Actions, 20);
@@ -466,6 +379,7 @@ fold(resultSetsOverTime, function (resultSet) {
     matchesContainer.innerHTML = html;
   });
 
+  // Take the first 100 results and use as the sample size for sorting by score..
   var top100Suggestions = sortFirstX(suggestions, 100, compareSuggestions);
   var cappedSuggestions = take(top100Suggestions, 4);
 
@@ -496,6 +410,3 @@ fold(resultSetsOverTime, function (resultSet) {
   });
 });
 
-//renderActions(results, 
-//             document.getElementById('matches'),
-//             document.getElementById('suggestions'));
