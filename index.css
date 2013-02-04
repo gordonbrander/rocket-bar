@@ -98,13 +98,13 @@ Used to define background images for entries. */
 .browser-gaiamobile-org:before,
 .email-gaiamobile-org:before,
 .facebook-com:before,
-.imdb-com:before {
+.imdb-com:before,
+.yelp-com:before {
   content: '';
   background-repeat: no-repeat;
   background-size: 30px auto;
   height: 30px;
   left: 7px;
-  padding-left: 45px;
   position: absolute;
   top: 7px;
   width: 30px;
@@ -135,9 +135,8 @@ Used to define background images for entries. */
   background-image: url(assets/Icon_Imdb.png);
 }
 .yelp-com:before {
-  background: url(assets/Icon_Yelp.png) 7px 107px no-repeat;
-  background-size: 30px auto;
-  padding: 0;
+  background-image: url(assets/Icon_Yelp.png);
+  top: 110px;
 }
 
 /* Individual action inside of an .action-match container.
