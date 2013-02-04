@@ -14,9 +14,11 @@
   <form action="" method="get" class="action-pallette">
     <div class="action-header">
       <div class="action-fields">
-        <input type="input" class="action-bar" id="action-bar" value="" placeholder="Search for anything&hellip;">
+        <input autocomplete="off" type="input" class="action-bar" id="action-bar" value="" placeholder="Search for anything&hellip;">
       </div>
+      <ul class="action-completions" id="suggestions"></ul>
     </div>
+
     <ul class="action-matches" id="matches"></ul>
   </form>
   <script src="browserify-combined.js"></script>

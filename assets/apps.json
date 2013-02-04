@@ -15,7 +15,8 @@
       {
         "names": ["sms", "mms", "msg", "txt", "text", "message"],
         "params": ["contact", "message"],
-        "caption": "SMS %"
+        "caption": "SMS %",
+        "parameterized": true
       }
     ]
   },

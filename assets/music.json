@@ -1,27 +1,127 @@
 [
-  "The Album Leaf",
-  "Ali Farka Toure",
-  "Amiina",
-  "Anni Rossi",
-  "Arcade Fire",
-  "Arthur & Yu",
-  "Au",
-  "Band of Horses",
-  "Beirut",
-  "Billie Holiday",
-  "Burial",
-  "Wilco",
-  "Justice",
-  "Bishop Allen",
-  "Sigur Ros",
-  "Bjork",
-  "The Black Keys",
-  "Bob Dylan",
-  "Bodies of Water",
-  "Bon Iver",
-  "Counting Crows",
-  "Death Cab for Cutie",
-  "Fleet Foxes",
-  "Fleetwood Mac",
-  "The Innocence Mission"
+  {
+    "artist":"The Album Leaf",
+    "serialized":"The Album Leaf",
+    "subtitle":"Artist / 29 songs / 3 albums"
+  },
+  {
+    "artist":"Ali Farka Toure",
+    "serialized":"Ali Farka Toure",
+    "subtitle":"Artist / 27 songs / 3 albums"
+  },
+  {
+    "artist":"Amiina",
+    "serialized":"Amiina",
+    "subtitle":"Artist / 15 songs / 3 albums"
+  },
+  {
+    "artist":"Anni Rossi",
+    "serialized":"Anni Rossi",
+    "subtitle":"Artist / 21 songs / 2 albums"
+  },
+  {
+    "artist":"Arcade Fire",
+    "serialized":"Arcade Fire",
+    "subtitle":"Artist / 22 songs / 3 albums"
+  },
+  {
+    "artist":"Arthur & Yu",
+    "serialized":"Arthur & Yu",
+    "subtitle":"Artist / 18 songs / 3 albums"
+  },
+  {
+    "artist":"Au",
+    "serialized":"Au",
+    "subtitle":"Artist / 20 songs / 2 albums"
+  },
+  {
+    "artist":"Band of Horses",
+    "serialized":"Band of Horses",
+    "subtitle":"Artist / 28 songs / 3 albums"
+  },
+  {
+    "artist":"Beirut",
+    "serialized":"Beirut",
+    "subtitle":"Artist / 7 songs / 2 albums"
+  },
+  {
+    "artist":"Billie Holiday",
+    "serialized":"Billie Holiday",
+    "subtitle":"Artist / 25 songs / 4 albums"
+  },
+  {
+    "artist":"Burial",
+    "serialized":"Burial",
+    "subtitle":"Artist / 14 songs / 2 albums"
+  },
+  {
+    "artist":"Wilco",
+    "serialized":"Wilco",
+    "subtitle":"Artist / 30 songs / 3 albums"
+  },
+  {
+    "artist":"Justice",
+    "serialized":"Justice",
+    "subtitle":"Artist / 8 songs / 1 album"
+  },
+  {
+    "artist":"Bishop Allen",
+    "serialized":"Bishop Allen",
+    "subtitle":"Artist / 28 songs / 4 albums"
+  },
+  {
+    "artist":"Sigur Ros",
+    "serialized":"Sigur Ros",
+    "subtitle":"Artist / 13 songs / 2 albums"
+  },
+  {
+    "artist":"Bjork",
+    "serialized":"Bjork",
+    "subtitle":"Artist / 19 songs / 2 albums"
+  },
+  {
+    "artist":"The Black Keys",
+    "serialized":"The Black Keys",
+    "subtitle":"Artist / 5 songs / 2 albums"
+  },
+  {
+    "artist":"Bob Dylan",
+    "serialized":"Bob Dylan",
+    "subtitle":"Artist / 12 songs / 3 albums"
+  },
+  {
+    "artist":"Bodies of Water",
+    "serialized":"Bodies of Water",
+    "subtitle":"Artist / 8 songs / 1 album"
+  },
+  {
+    "artist":"Bon Iver",
+    "serialized":"Bon Iver",
+    "subtitle":"Artist / 28 songs / 4 albums"
+  },
+  {
+    "artist":"Counting Crows",
+    "serialized":"Counting Crows",
+    "subtitle":"Artist / 22 songs / 2 albums"
+  },
+  {
+    "artist":"Death Cab for Cutie",
+    "serialized":"Death Cab for Cutie",
+    "subtitle":"Artist / 22 songs / 3 albums"
+  },
+  {
+    "artist":"Fleet Foxes",
+    "serialized":"Fleet Foxes",
+    "subtitle":"Artist / 21 songs / 3 albums"
+  },
+  {
+    "artist":"Fleetwood Mac",
+    "serialized":"Fleetwood Mac",
+    "subtitle":"Artist / 15 songs / 3 albums"
+  },
+  {
+    "artist":"The Innocence Mission",
+    "serialized":"The Innocence Mission",
+    "subtitle":"Artist / 8 songs / 1 album"
+  }
 ]
