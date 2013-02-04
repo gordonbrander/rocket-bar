@@ -62,12 +62,7 @@ var actionsByType = expand(apps, function(app) {
 // that services could be easily incorporated. For now only thing we really
 // care about is `serialized` property that search will be performed over.
 var data = {
-  artist: map(music, function(name) {
-    return {
-      artist: name,
-      serialized: name
-    };
-  }),
+  artist: music,
   contact: contacts
 }
 
@@ -256,9 +251,10 @@ var renderType = {
   },
 
   'default': function(input, title, trailingText) {
+    var subtitle = trailingText || input.subtitle;
     return '<article class="action-entry">' +
       '<h1 class="title">' + title + '</h1>' +
-      '<span class="subtitle">' + trailingText + '</span>' +
+      '<span class="subtitle">' + subtitle + '</span>' +
       '</article>';
   }
 };
