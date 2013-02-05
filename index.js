@@ -371,7 +371,7 @@ var completionTitleElementsOverTime = merge([
   clickedTitlesOfCompletionElementsOverTime
 ]);
 
-var completionValuesOverTime = map(completionTitleElementsOverTime, function (element) {
+var clickedCompletionValuesOverTime = map(completionTitleElementsOverTime, function (element) {
   return element.textContent;
 });
 
@@ -380,7 +380,7 @@ var completionValuesOverTime = map(completionTitleElementsOverTime, function (el
 // also repeats in `searchQuery` are dropped to avoid more work
 // down the flow.
 var searchQueriesOverTime = dropRepeats(merge([
-  completionValuesOverTime,
+  clickedCompletionValuesOverTime,
   actionBarValuesOverTime
 ]));
 
@@ -405,8 +405,8 @@ var resultSetsOverTime = map(searchQueriesOverTime, function(query) {
 
 var actionBarElement = document.getElementById('action-bar');
 
-// Update 
-fold(completionValuesOverTime, function (value) {
+// Update action bar based on completion clicks.
+fold(clickedCompletionValuesOverTime, function (value) {
   actionBarElement.value = value;
 });
 
