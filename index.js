@@ -23,6 +23,7 @@ var field = require('oops/field');
 var query = require('oops/query');
 var dropRepeats = require('transducer/drop-repeats');
 var take = require('reducers/take');
+var takeWhile = require('reducers/take-while');
 var into = require('reducers/into');
 var when = require('eventual/when');
 
@@ -157,6 +158,26 @@ function sortFirstX(reducible, sampleSize, sortingFunction) {
   var bottomX = sort(firstX, sortingFunction);
   return reverse(bottomX);
 }
+
+// Used by createMatchHTML.
+var renderType = {
+  'contact': function(input, title, trailingText) {
+    var subtitle = trailingText || input.tel;
+
+    return '<article class="action-entry">' +
+      '<h1 class="title">' + title + '</h1>' +
+      '<span class="subtitle">' + subtitle + '</span>' +
+      '</article>';
+  },
+
+  'default': function(input, title, trailingText) {
+    var subtitle = trailingText || input.subtitle;
+    return '<article class="action-entry">' +
+      '<h1 class="title">' + title + '</h1>' +
+      '<span class="subtitle">' + subtitle + '</span>' +
+      '</article>';
+  }
+};
 
 function createMatchHTML(match) {
   // Creates the HTML string for a single match.
@@ -325,52 +346,36 @@ var completionValuesOverTime = map(completionTitleElementsOverTime, function (el
 });
 
 // Merge clicked suggested values stream and actionBar values stream.
-var searchQuery = merge([completionValuesOverTime, actionBarValuesOverTime]);
-
 // Create signal representing query terms entered into action bar,
 // also repeats in `searchQuery` are dropped to avoid more work
 // down the flow.
-var searchTerms = map(dropRepeats(searchQuery), function(query) {
-  return query.split(/\s+/);
-});
+var searchQueriesOverTime = dropRepeats(merge([
+  completionValuesOverTime,
+  actionBarValuesOverTime
+]));
 
 // Continues signal representing search results for the entered query.
 // special `SOQ` value is used at as delimiter to indicate results for
 // new query. This can be used by writer to flush previous inputs and
 // start writing now ones.
-var resultSetsOverTime = map(searchTerms, function(terms) {
+var resultSetsOverTime = map(searchQueriesOverTime, function(query) {
+  var terms = query.split(/\s+/);
+
   if (!terms.length || !terms[0]) return SOQ;
 
   // Search noun matches. Accesses closure variable NOUNS.
   var nounMatches = grepNounMatches(terms, NOUNS);
 
   return {
+    query: query,
     suggestions: nounMatches,
     actions: merge([ searchWithVerb(terms), expandNounMatchesToActions(nounMatches, actionsByType) ])
   };
 });
 
-var renderType = {
-  'contact': function(input, title, trailingText) {
-    var subtitle = trailingText || input.tel;
-
-    return '<article class="action-entry">' +
-      '<h1 class="title">' + title + '</h1>' +
-      '<span class="subtitle">' + subtitle + '</span>' +
-      '</article>';
-  },
-
-  'default': function(input, title, trailingText) {
-    var subtitle = trailingText || input.subtitle;
-    return '<article class="action-entry">' +
-      '<h1 class="title">' + title + '</h1>' +
-      '<span class="subtitle">' + subtitle + '</span>' +
-      '</article>';
-  }
-};
-
 var actionBarElement = document.getElementById('action-bar');
-print(completionValuesOverTime);
+
+// Update 
 fold(completionValuesOverTime, function (value) {
   actionBarElement.value = value;
 });
@@ -399,13 +404,23 @@ fold(resultSetsOverTime, function (resultSet) {
 
   // Take the first 100 results and use as the sample size for sorting by score..
   var top100Suggestions = sortFirstX(suggestions, 100, compareSuggestions);
-  var cappedSuggestions = take(top100Suggestions, 4);
-
+  var cappedSuggestions = take(top100Suggestions, 3);
+  
+  // Transform the limited set of suggestions into strings.
   var suggestionTitles = map(cappedSuggestions, function (suggestion) {
     return suggestion[0].noun.serialized;
   });
 
-  var eventualSuggestionsHtml = fold(suggestionTitles, function (title, html) {
+  // Filter out suggestions that are equivalent to the terms already in the
+  // action bar.
+  var validSuggestionTitles = filter(suggestionTitles, function (title) {
+    return title.toLowerCase() !== resultSet.query.toLowerCase();
+  });
+
+  // Create an HTML string for each suggestion entry.
+  // If there are no suggestions we'll end up reducing to an empty string, and
+  // hence no suggestions are rendered. Perfect!
+  var eventualSuggestionsHtml = fold(validSuggestionTitles, function (title, html) {
     return html + '<li class="action-completion">' + 
       '<span class="title">' +
       title +
@@ -413,6 +428,7 @@ fold(resultSetsOverTime, function (resultSet) {
       '</li>'
   }, '');
 
+  // Render the HTML for suggestions.
   fold(eventualSuggestionsHtml, function (html) {
     suggestionsContainer.innerHTML = html;
   });
