@@ -1,16 +1,22 @@
 [
   {
-    terms: 'sushi',
-    serialized: 'sushi',
-    subtitle: 'Search the web for Sushi',
-    results: [
+    "terms":"sushi",
+    "serialized":"sushi",
+    "subtitle":"Search the web for Sushi",
+    "results":[
       {
-        title: 'Sushi - Wikipedia, the free encyclopedia',
-        url: 'http://en.wikipedia.org/wiki/Sushi'
+        "title":"Sushi - Wikipedia, the free encyclopedia",
+        "url":"http://en.wikipedia.org/wiki/Sushi"
       },
       {
-        title: 'Blowfish Sushi to Die For',
-        url: 'http://blowfishsushi.com/'
+        "title":"Blowfish Sushi to Die For",
+        "description":"Includes menus and links to online reservation for sushi and Asian fusion restaurants and bars in San Francisco",
+        "url":"http://blowfishsushi.com/"
+      },
+      {
+        "title":"Shabu Shabu Sushi",
+        "url":"http://shabupubsushi.com",
+        "description":"View Shabu Sushi menu, Order Japanese, Sushi Food Delivery Catering Online from Shabu Sushi"
       }
     ]
   }
