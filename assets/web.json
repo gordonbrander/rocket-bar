@@ -6,7 +6,13 @@
     "results":[
       {
         "title":"Sushi - Wikipedia, the free encyclopedia",
+        "description": "Sushi (すし, 寿司, 鮨, 鮓, 寿斗, 寿し, 壽司) is a Japanese food consisting of cooked vinegared rice",
         "url":"http://en.wikipedia.org/wiki/Sushi"
+      },
+      {
+        "title":"The Sushi FAQ - The ultimate guide to sushi and sashimi and how",
+        "description":"What is sushi? What is sashimi? The Sushi FAQ is devoted to sushi and its culture. Learn about its health benefits, nutritional information (calories), and how to",
+        "url":"http://sushifaq.com"
       },
       {
         "title":"Blowfish Sushi to Die For",
@@ -17,6 +23,11 @@
         "title":"Shabu Shabu Sushi",
         "url":"http://shabupubsushi.com",
         "description":"View Shabu Sushi menu, Order Japanese, Sushi Food Delivery Catering Online from Shabu Sushi"
+      },
+      {
+        "title":"Fuki Sushi :: Japanese Cuisine",
+        "url": "http://fukisushi.com",
+        "description":""
       }
     ]
   }
