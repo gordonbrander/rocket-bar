@@ -455,7 +455,7 @@ fold(resultSetsOverTime, function (resultSet) {
   });
 
   // Transform the limited set of suggestions into strings.
-  var suggestionTemplateContexts = map(cappedSuggestions, function fromSuggestionToTitleAndMatch(suggestion) {
+  var suggestionTemplateContexts = map(validSuggestionTitles, function fromSuggestionToTitleAndMatch(suggestion) {
     return {
       title: suggestion[0].noun.serialized,
       matches: suggestion[2]
