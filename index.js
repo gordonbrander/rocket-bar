@@ -404,7 +404,7 @@ fold(resultSetsOverTime, function (resultSet) {
 
   // Take the first 100 results and use as the sample size for sorting by score..
   var top100Suggestions = sortFirstX(suggestions, 100, compareSuggestions);
-  var cappedSuggestions = take(top100Suggestions, 4);
+  var cappedSuggestions = take(top100Suggestions, 3);
   
   // Transform the limited set of suggestions into strings.
   var suggestionTitles = map(cappedSuggestions, function (suggestion) {
