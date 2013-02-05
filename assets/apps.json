@@ -59,5 +59,15 @@
         "caption": "%"
       }
     ]
+  },
+  {
+    "id": "browser.gaiamobile.org",
+    "actions": [
+      {
+        "names": ["web", "www", "http"],
+        "params": ["web"],
+        "caption": "%"
+      }
+    ]
   }
 ]

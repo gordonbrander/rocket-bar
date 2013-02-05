@@ -38,6 +38,7 @@ var kicks = require('./kicks.js'),
 var apps = require('./assets/apps.json');
 var contacts = require('./assets/contacts.json');
 var music = require('./assets/music.json');
+var web = require('./assets/web.json');
 
 var SOQ = new String('Start of query');
 
@@ -67,7 +68,8 @@ var actionsByType = expand(apps, function(app) {
 // care about is `serialized` property that search will be performed over.
 var data = {
   artist: music,
-  contact: contacts
+  contact: contacts,
+  web: web
 }
 
 // Live stream of all the noun data paired with types.
@@ -159,6 +161,13 @@ function sortFirstX(reducible, sampleSize, sortingFunction) {
   return reverse(bottomX);
 }
 
+function createActionArticle(title, subtitle, className) {
+  return '<article class="' + className + '">' +
+    '<h1 class="title">' + title + '</h1>' +
+    '<p class="subtitle">' + subtitle + '</p>' +
+    '</article>';
+}
+
 // Used by createMatchHTML.
 var renderType = {
   'contact': function(input, title, trailingText) {
@@ -168,6 +177,19 @@ var renderType = {
       '<h1 class="title">' + title + '</h1>' +
       '<span class="subtitle">' + subtitle + '</span>' +
       '</article>';
+  },
+
+  'web': function(input, title, trailingText) {
+    var resultsHtml = input.results.reduce(function reduceResults(html, result) {
+      return html + createActionArticle(result.title, result.url, 'action-result');
+    }, '');
+
+    return '<article class="action-entry">' +
+      '<h1 class="title">Web Results</h1>' +
+      '</article>' +
+      '<section class="action-results">' + 
+      resultsHtml +
+      '</section>';
   },
 
   'default': function(input, title, trailingText) {
