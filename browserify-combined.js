@@ -3545,7 +3545,13 @@ require.define("/assets/web.json",function(require,module,exports,__dirname,__fi
     "results":[
       {
         "title":"Sushi - Wikipedia, the free encyclopedia",
+        "description": "Sushi (すし, 寿司, 鮨, 鮓, 寿斗, 寿し, 壽司) is a Japanese food consisting of cooked vinegared rice",
         "url":"http://en.wikipedia.org/wiki/Sushi"
+      },
+      {
+        "title":"The Sushi FAQ - The ultimate guide to sushi and sashimi and how",
+        "description":"What is sushi? What is sashimi? The Sushi FAQ is devoted to sushi and its culture. Learn about its health benefits, nutritional information (calories), and how to",
+        "url":"http://sushifaq.com"
       },
       {
         "title":"Blowfish Sushi to Die For",
@@ -3556,6 +3562,11 @@ require.define("/assets/web.json",function(require,module,exports,__dirname,__fi
         "title":"Shabu Shabu Sushi",
         "url":"http://shabupubsushi.com",
         "description":"View Shabu Sushi menu, Order Japanese, Sushi Food Delivery Catering Online from Shabu Sushi"
+      },
+      {
+        "title":"Fuki Sushi :: Japanese Cuisine",
+        "url": "http://fukisushi.com",
+        "description":""
       }
     ]
   }
@@ -3890,6 +3901,25 @@ function expandNounMatchesToActions(nounMatches, actionsByType) {
   });
 }
 
+function reduceHighlightMatchesHtml(string, match) {
+  // Boldify substring matches in a string.
+  return string.replace(match, '<b>' + match + '</b>');
+}
+function highlightMatchesHtml(string, matches) {
+  // Highlight the substring matches in a string.
+  return matches.reduce(reduceHighlightMatchesHtml, string);
+}
+
+function foldCompletionHtml(completion, html) {
+  // Create the HTML string for a set of completions. Intended for use
+  // with fold.
+  return html + '<li class="action-completion">' + 
+    '<span class="title">' +
+    highlightMatchesHtml(completion.title, completion.matches) +
+    '</span>' +
+    '</li>';
+}
+
 // Control flow logic
 // ----------------------------------------------------------------------------
 
@@ -3934,7 +3964,7 @@ var completionTitleElementsOverTime = merge([
   clickedTitlesOfCompletionElementsOverTime
 ]);
 
-var completionValuesOverTime = map(completionTitleElementsOverTime, function (element) {
+var clickedCompletionValuesOverTime = map(completionTitleElementsOverTime, function (element) {
   return element.textContent;
 });
 
@@ -3943,7 +3973,7 @@ var completionValuesOverTime = map(completionTitleElementsOverTime, function (el
 // also repeats in `searchQuery` are dropped to avoid more work
 // down the flow.
 var searchQueriesOverTime = dropRepeats(merge([
-  completionValuesOverTime,
+  clickedCompletionValuesOverTime,
   actionBarValuesOverTime
 ]));
 
@@ -3968,8 +3998,8 @@ var resultSetsOverTime = map(searchQueriesOverTime, function(query) {
 
 var actionBarElement = document.getElementById('action-bar');
 
-// Update 
-fold(completionValuesOverTime, function (value) {
+// Update action bar based on completion clicks.
+fold(clickedCompletionValuesOverTime, function (value) {
   actionBarElement.value = value;
 });
 
@@ -3998,28 +4028,26 @@ fold(resultSetsOverTime, function (resultSet) {
   // Take the first 100 results and use as the sample size for sorting by score..
   var top100Suggestions = sortFirstX(suggestions, 100, compareSuggestions);
   var cappedSuggestions = take(top100Suggestions, 3);
-  
-  // Transform the limited set of suggestions into strings.
-  var suggestionTitles = map(cappedSuggestions, function (suggestion) {
-    return suggestion[0].noun.serialized;
-  });
 
   // Filter out suggestions that are equivalent to the terms already in the
   // action bar.
-  var validSuggestionTitles = filter(suggestionTitles, function (title) {
+  var validSuggestionTitles = filter(cappedSuggestions, function (suggestion) {
+    var title = suggestion[0].noun.serialized;
     return title.toLowerCase() !== resultSet.query.toLowerCase();
+  });
+
+  // Transform the limited set of suggestions into strings.
+  var suggestionTemplateContexts = map(cappedSuggestions, function fromSuggestionToTitleAndMatch(suggestion) {
+    return {
+      title: suggestion[0].noun.serialized,
+      matches: suggestion[2]
+    };
   });
 
   // Create an HTML string for each suggestion entry.
   // If there are no suggestions we'll end up reducing to an empty string, and
   // hence no suggestions are rendered. Perfect!
-  var eventualSuggestionsHtml = fold(validSuggestionTitles, function (title, html) {
-    return html + '<li class="action-completion">' + 
-      '<span class="title">' +
-      title +
-      '</span>' +
-      '</li>'
-  }, '');
+  var eventualSuggestionsHtml = fold(suggestionTemplateContexts, foldCompletionHtml, '');
 
   // Render the HTML for suggestions.
   fold(eventualSuggestionsHtml, function (html) {
