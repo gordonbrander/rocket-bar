@@ -159,6 +159,26 @@ function sortFirstX(reducible, sampleSize, sortingFunction) {
   return reverse(bottomX);
 }
 
+// Used by createMatchHTML.
+var renderType = {
+  'contact': function(input, title, trailingText) {
+    var subtitle = trailingText || input.tel;
+
+    return '<article class="action-entry">' +
+      '<h1 class="title">' + title + '</h1>' +
+      '<span class="subtitle">' + subtitle + '</span>' +
+      '</article>';
+  },
+
+  'default': function(input, title, trailingText) {
+    var subtitle = trailingText || input.subtitle;
+    return '<article class="action-entry">' +
+      '<h1 class="title">' + title + '</h1>' +
+      '<span class="subtitle">' + subtitle + '</span>' +
+      '</article>';
+  }
+};
+
 function createMatchHTML(match) {
   // Creates the HTML string for a single match.
 
@@ -352,25 +372,6 @@ var resultSetsOverTime = map(searchQueriesOverTime, function(query) {
     actions: merge([ searchWithVerb(terms), expandNounMatchesToActions(nounMatches, actionsByType) ])
   };
 });
-
-var renderType = {
-  'contact': function(input, title, trailingText) {
-    var subtitle = trailingText || input.tel;
-
-    return '<article class="action-entry">' +
-      '<h1 class="title">' + title + '</h1>' +
-      '<span class="subtitle">' + subtitle + '</span>' +
-      '</article>';
-  },
-
-  'default': function(input, title, trailingText) {
-    var subtitle = trailingText || input.subtitle;
-    return '<article class="action-entry">' +
-      '<h1 class="title">' + title + '</h1>' +
-      '<span class="subtitle">' + subtitle + '</span>' +
-      '</article>';
-  }
-};
 
 var actionBarElement = document.getElementById('action-bar');
 
