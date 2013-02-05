@@ -319,6 +319,14 @@ function expandNounMatchesToActions(nounMatches, actionsByType) {
   });
 }
 
+function foldCompletionHtml(title, html) {
+  return html + '<li class="action-completion">' + 
+    '<span class="title">' +
+    title +
+    '</span>' +
+    '</li>';
+}
+
 // Control flow logic
 // ----------------------------------------------------------------------------
 
@@ -442,13 +450,7 @@ fold(resultSetsOverTime, function (resultSet) {
   // Create an HTML string for each suggestion entry.
   // If there are no suggestions we'll end up reducing to an empty string, and
   // hence no suggestions are rendered. Perfect!
-  var eventualSuggestionsHtml = fold(validSuggestionTitles, function (title, html) {
-    return html + '<li class="action-completion">' + 
-      '<span class="title">' +
-      title +
-      '</span>' +
-      '</li>'
-  }, '');
+  var eventualSuggestionsHtml = fold(validSuggestionTitles, foldCompletionHtml, '');
 
   // Render the HTML for suggestions.
   fold(eventualSuggestionsHtml, function (html) {
