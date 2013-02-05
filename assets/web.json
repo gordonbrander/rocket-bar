@@ -1,0 +1,17 @@
+[
+  {
+    terms: 'sushi',
+    serialized: 'sushi',
+    subtitle: 'Search the web for Sushi',
+    results: [
+      {
+        title: 'Sushi - Wikipedia, the free encyclopedia',
+        url: 'http://en.wikipedia.org/wiki/Sushi'
+      },
+      {
+        title: 'Blowfish Sushi to Die For',
+        url: 'http://blowfishsushi.com/'
+      }
+    ]
+  }
+]
