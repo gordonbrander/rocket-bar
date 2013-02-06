@@ -184,7 +184,6 @@ var renderType = {
 
     if(expanded) {
       var header = document.getElementsByClassName('widget-header')[0];
-      console.log(header);
       header.innerHTML = '<div class="map-container">' + 
         '<img src="assets/map.jpg" /></div>';
 
