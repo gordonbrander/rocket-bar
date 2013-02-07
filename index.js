@@ -452,19 +452,19 @@ fold(resultSetsOverTime, function (resultSet) {
     matchesContainer.innerHTML = html;
   });
 
-  // Take the first 100 results and use as the sample size for sorting by score..
-  var top100Suggestions = sortFirstX(suggestions, 100, compareSuggestions);
-  var cappedSuggestions = take(top100Suggestions, 3);
-
   // Filter out suggestions that are equivalent to the terms already in the
   // action bar.
-  var validSuggestionTitles = filter(cappedSuggestions, function (suggestion) {
+  var validSuggestionTitles = filter(suggestions, function (suggestion) {
     var title = suggestion[0].noun.serialized;
     return title.toLowerCase() !== resultSet.query.toLowerCase();
   });
 
+  // Take the first 100 results and use as the sample size for sorting by score..
+  var top100ValidSuggestions = sortFirstX(validSuggestionTitles, 100, compareSuggestions);
+  var cappedSuggestions = take(top100ValidSuggestions, 3);
+
   // Transform the limited set of suggestions into strings.
-  var suggestionTemplateContexts = map(validSuggestionTitles, function fromSuggestionToTitleAndMatch(suggestion) {
+  var suggestionTemplateContexts = map(cappedSuggestions, function fromSuggestionToTitleAndMatch(suggestion) {
     return {
       title: suggestion[0].noun.serialized,
       matches: suggestion[2]
