@@ -146,11 +146,19 @@ function reverse(reducible) {
 }
 
 function sortFirstX(reducible, sampleSize, sortingFunction) {
-  // Gives you the
   // Take the first 100 results and use those.
   var firstX = take(reducible, sampleSize);
   var bottomX = sort(firstX, sortingFunction);
   return reverse(bottomX);
+}
+
+function isLongerThan(reducible, length) {
+  // Test if a reducible is greater than a given length.
+  // Returns an eventual.
+  var sample = into(take(reducible, length + 1), []);
+  return when(sample, function (array) {
+    return array.length > length;
+  });
 }
 
 function createActionArticle(title, subtitle, className) {
@@ -430,22 +438,17 @@ fold(resultSetsOverTime, function (resultSet) {
   // And take only the top 20.
   var cappedResults = take(top100Actions, 20);
 
-  var nouns = fold(cappedResults, function(match, nouns) {
-    if(nouns.indexOf(match.input.serialized) === -1) {
-      nouns.push(match.input.serialized);
-    }
+  var isSuggestionsLongerThan1 = isLongerThan(suggestions, 1);
 
-    return nouns;
-  }, []);
-
-  
-  // Create the amalgamated HTML string.
-  var eventualHtml = fold(cappedResults, function (match, matches) {
-    return matches + createMatchHTML(match, nouns.length === 1);
+  // Create the amalgamated html string.
+  var eventualResultsHtml = fold(isSuggestionsLongerThan1, function (isLongerThan1) {
+    return fold(cappedResults, function (match, matches) {
+      return matches + createMatchHTML(match, !isLongerThan1);
+    }, '');
   }, '');
-  
+
   // Wait for string to finish building, then assign as HTML.
-  fold(eventualHtml, function (html) {
+  fold(eventualResultsHtml, function (html) {
     matchesContainer.innerHTML = html;
   });
 
