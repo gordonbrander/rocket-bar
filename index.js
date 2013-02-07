@@ -183,10 +183,6 @@ var renderType = {
     var resultsHtml = '';
 
     if(expanded) {
-      var header = document.getElementsByClassName('widget-header')[0];
-      header.innerHTML = '<div class="map-container">' + 
-        '<img src="assets/map.jpg" /></div>';
-
       resultsHtml = '<section class="action-results">' +
         input.results.reduce(function reduceResults(html, result) {
           return html + createActionArticle(result.title, result.url, 'action-result');
@@ -453,11 +449,6 @@ fold(resultSetsOverTime, function (resultSet) {
   
   // Create the amalgamated HTML string.
   var eventualHtml = fold(cappedResults, function (match, matches) {
-    if(nouns.length > 1) {
-      var header = document.getElementsByClassName('widget-header')[0];
-      header.innerHTML = '';
-    }
-
     return matches + createMatchHTML(match, nouns.length === 1);
   }, '');
   
