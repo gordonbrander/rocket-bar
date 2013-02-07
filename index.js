@@ -492,3 +492,17 @@ fold(resultSetsOverTime, function (resultSet) {
   });
 });
 
+if(navigator.mozApps) {
+    var btn = document.getElementById('install');
+
+    btn.addEventListener('click', function() {
+        navigator.mozApps.install(location.href + 'manifest.webapp');
+    });
+    
+    var req = navigator.mozApps.getSelf();
+    req.onsuccess = function() {
+        if(!this.result) {
+            document.getElementById('install').style.display = 'block';
+        }
+    };
+}

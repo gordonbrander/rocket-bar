@@ -227,3 +227,6 @@ of an .action-match. */
   width: 7px;
 }
 
+#install {
+    display: none;
+}
