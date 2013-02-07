@@ -17,8 +17,6 @@ var open = require('dom-reduce/event');
 var print = require('reducers/debug/print');
 var zip = require('zip-reduce');
 var grep = require('./grep-reduce');
-var compose = require('functional/compose');
-var partial = require('functional/partial');
 var field = require('oops/field');
 var query = require('oops/query');
 var dropRepeats = require('transducer/drop-repeats');
@@ -26,7 +24,6 @@ var take = require('reducers/take');
 var takeWhile = require('reducers/take-while');
 var into = require('reducers/into');
 var when = require('eventual/when');
-var apply = require('functional/apply');
 var extend = require('./kicks').extend;
 
 var apps = require('./assets/apps.json');
@@ -172,59 +169,54 @@ function createActionArticle(title, subtitle, className) {
 
 // Used by createMatchHTML.
 var renderType = {
-  'contact': function(input, title, trailingText, expanded) {
-    var subtitle = trailingText || input.tel;
+  'contact': function(context, results) {
+    var subtitle = context.trailing || context.tel;
 
     return '<article class="action-entry">' +
-      '<h1 class="title">' + title + '</h1>' +
+      '<h1 class="title">' + context.title + '</h1>' +
       '<span class="subtitle">' + subtitle + '</span>' +
       '</article>';
   },
 
-  'web': function(input, title, trailingText, expanded) {
-    var resultsHtml = '';
+  'web': function(context, results) {
+    var resultsHtml = results.reduce(function reduceResults(html, result) {
+      return html + createActionArticle(result.title, result.url, 'action-result');
+    }, '');
 
-    if(expanded) {
-      resultsHtml = '<section class="action-results">' +
-        input.results.reduce(function reduceResults(html, result) {
-          return html + createActionArticle(result.title, result.url, 'action-result');
-        }, '') +
-        '</section>';
-    }
+    var resultSection = resultsHtml ?
+      ('<section class="action-results">' +
+      resultsHtml +
+      '</section>') : '';
 
     return '<article class="action-entry">' +
       '<h1 class="title">Web Results</h1>' +
-      '<span class="subtitle">' + title + '</span>' +
+      '<span class="subtitle">' + context.title + '</span>' +
       '</article>' +
-      resultsHtml;
+      resultSection;
   },
 
-  'default': function(input, title, trailingText, expanded) {
-    var subtitle = trailingText || input.subtitle;
+  'default': function(context, results) {
+    var subtitle = context.trailing || context.subtitle;
     return '<article class="action-entry">' +
-      '<h1 class="title">' + title + '</h1>' +
+      '<h1 class="title">' + context.title + '</h1>' +
       '<span class="subtitle">' + subtitle + '</span>' +
       '</article>';
   }
 };
 
-function createMatchHTML(context, results) {
+function createMatchHtml(context, results) {
   // Creates the HTML string for a single match.
-  var appClassname = escStringForClassname(match.app.id);
-  var title = compileCaption(match.action, match.input);
-  var trailingText = (match.action.parameterized &&
-                      match.trailingText) ? match.trailingText :  '';
-
-  var renderFunc = renderType[match.inputType] || renderType['default'];
+  var renderFunc = renderType[context.type] || renderType['default'];
 
   // Eventually, we need a better way to handle this stuff. Templating? Mustache? writer() from reflex?
-  return renderFunc(match.input, title, trailingText, expanded);
+  return renderFunc(context, results);
 }
 
 function foldResultsHtml(pair, string) {
-  return string + '<li class="action-match ' + appClassname + '">' +
-    apply(createMatchHTML, pair) +
-    '</li>';
+  var result = createMatchHtml.apply(null, pair);
+  return (string + '<li class="action-match ' + pair[0].className + '">' +
+    result +
+    '</li>');
 }
 
 function searchWithVerb(terms) {
@@ -468,7 +460,7 @@ fold(resultSetsOverTime, function (resultSet) {
 
       // Return template context + results if we only have one match.
       // Otherwise return just the context.
-      return isLongerThan1 ? [context] : [context, results];
+      return isLongerThan1 ? [context, []] : [context, results];
     });
   });
 
