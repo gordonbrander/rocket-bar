@@ -501,7 +501,7 @@ if(navigator.mozApps) {
     
     var req = navigator.mozApps.getSelf();
     req.onsuccess = function() {
-        if(!this.result) {
+        if(!req.result) {
             document.getElementById('install').style.display = 'block';
         }
     };

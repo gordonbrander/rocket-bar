@@ -228,5 +228,12 @@ of an .action-match. */
 }
 
 #install {
+    position: absolute;
+    top: 3em;
+    right: 0;
+    font-size: 1.5em;
+    border: 1px solid grey;
+    padding: .25em .5em;
+    margin: .5em 1em;
     display: none;
 }
