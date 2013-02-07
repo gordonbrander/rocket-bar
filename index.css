@@ -226,3 +226,9 @@ of an .action-match. */
   top: 6px;
   width: 7px;
 }
+
+.map-container {
+    overflow: hidden;
+    height: 125px;
+    
+}

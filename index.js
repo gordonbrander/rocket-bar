@@ -170,7 +170,7 @@ function createActionArticle(title, subtitle, className) {
 
 // Used by createMatchHTML.
 var renderType = {
-  'contact': function(input, title, trailingText) {
+  'contact': function(input, title, trailingText, expanded) {
     var subtitle = trailingText || input.tel;
 
     return '<article class="action-entry">' +
@@ -179,20 +179,29 @@ var renderType = {
       '</article>';
   },
 
-  'web': function(input, title, trailingText) {
-    var resultsHtml = input.results.reduce(function reduceResults(html, result) {
-      return html + createActionArticle(result.title, result.url, 'action-result');
-    }, '');
+  'web': function(input, title, trailingText, expanded) {
+    var resultsHtml = '';
+
+    if(expanded) {
+      var header = document.getElementsByClassName('widget-header')[0];
+      header.innerHTML = '<div class="map-container">' + 
+        '<img src="assets/map.jpg" /></div>';
+
+      resultsHtml = '<section class="action-results">' +
+        input.results.reduce(function reduceResults(html, result) {
+          return html + createActionArticle(result.title, result.url, 'action-result');
+        }, '') +
+        '</section>';
+    }
 
     return '<article class="action-entry">' +
       '<h1 class="title">Web Results</h1>' +
+      '<span class="subtitle">' + title + '</span>' +
       '</article>' +
-      '<section class="action-results">' + 
-      resultsHtml +
-      '</section>';
+      resultsHtml;
   },
 
-  'default': function(input, title, trailingText) {
+  'default': function(input, title, trailingText, expanded) {
     var subtitle = trailingText || input.subtitle;
     return '<article class="action-entry">' +
       '<h1 class="title">' + title + '</h1>' +
@@ -201,7 +210,7 @@ var renderType = {
   }
 };
 
-function createMatchHTML(match) {
+function createMatchHTML(match, expanded) {
   // Creates the HTML string for a single match.
 
   var appClassname = escStringForClassname(match.app.id);
@@ -213,7 +222,7 @@ function createMatchHTML(match) {
 
   // Eventually, we need a better way to handle this stuff. Templating? Mustache? writer() from reflex?
   return '<li class="action-match ' + appClassname + '">' +
-    renderFunc(match.input, title, trailingText) +
+    renderFunc(match.input, title, trailingText, expanded) +
     '</li>';
 }
 
@@ -433,11 +442,25 @@ fold(resultSetsOverTime, function (resultSet) {
   // And take only the top 20.
   var cappedResults = take(top100Actions, 20);
 
+  var nouns = fold(cappedResults, function(match, nouns) {
+    if(nouns.indexOf(match.input.serialized) === -1) {
+      nouns.push(match.input.serialized);
+    }
+
+    return nouns;
+  }, []);
+
+  
   // Create the amalgamated HTML string.
   var eventualHtml = fold(cappedResults, function (match, matches) {
-    return matches + createMatchHTML(match);
-  }, '');
+    if(nouns.length > 1) {
+      var header = document.getElementsByClassName('widget-header')[0];
+      header.innerHTML = '';
+    }
 
+    return matches + createMatchHTML(match, nouns.length === 1);
+  }, '');
+  
   // Wait for string to finish building, then assign as HTML.
   fold(eventualHtml, function (html) {
     matchesContainer.innerHTML = html;
