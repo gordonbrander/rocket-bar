@@ -27,14 +27,6 @@ var takeWhile = require('reducers/take-while');
 var into = require('reducers/into');
 var when = require('eventual/when');
 
-var kicks = require('./kicks.js'),
-    apply = kicks.apply,
-    slice = kicks.slice,
-    reverse = kicks.reverse,
-    lambda = kicks.lambda,
-    extend = kicks.extend;
-
-
 var apps = require('./assets/apps.json');
 var contacts = require('./assets/contacts.json');
 var music = require('./assets/music.json');
