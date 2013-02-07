@@ -26,6 +26,8 @@ var take = require('reducers/take');
 var takeWhile = require('reducers/take-while');
 var into = require('reducers/into');
 var when = require('eventual/when');
+var apply = require('functional/apply');
+var extend = require('./kicks').extend;
 
 var apps = require('./assets/apps.json');
 var contacts = require('./assets/contacts.json');
@@ -206,9 +208,8 @@ var renderType = {
   }
 };
 
-function createMatchHTML(match, expanded) {
+function createMatchHTML(context, results) {
   // Creates the HTML string for a single match.
-
   var appClassname = escStringForClassname(match.app.id);
   var title = compileCaption(match.action, match.input);
   var trailingText = (match.action.parameterized &&
@@ -217,8 +218,12 @@ function createMatchHTML(match, expanded) {
   var renderFunc = renderType[match.inputType] || renderType['default'];
 
   // Eventually, we need a better way to handle this stuff. Templating? Mustache? writer() from reflex?
-  return '<li class="action-match ' + appClassname + '">' +
-    renderFunc(match.input, title, trailingText, expanded) +
+  return renderFunc(match.input, title, trailingText, expanded);
+}
+
+function foldResultsHtml(pair, string) {
+  return string + '<li class="action-match ' + appClassname + '">' +
+    apply(createMatchHTML, pair) +
     '</li>';
 }
 
@@ -440,12 +445,35 @@ fold(resultSetsOverTime, function (resultSet) {
 
   var isSuggestionsLongerThan1 = isLongerThan(suggestions, 1);
 
+  // Create object specifically for HTML templating.
+  var resultsTemplateContexts = fold(isSuggestionsLongerThan1, function (isLongerThan1) {
+    return map(cappedResults, function resultToTemplateContext(result) {
+      // Capture fake search results.
+      var results = result.input.results;
+
+      // Create a template object for basic compact view.
+      var context = extend({
+        id: result.app.id,
+        className: escStringForClassname(result.app.id),
+        title: compileCaption(result.action, result.input),
+        trailing: ((result.action.parameterized && result.trailingText) ?
+          result.trailingText :  ''),
+        expanded: isLongerThan1,
+        type: result.inputType
+      }, result.input)
+
+      // Sloppy. Ideally, we should split out results upstream. Or rather, they
+      // should probably be a separate stream.
+      delete context.results;
+
+      // Return template context + results if we only have one match.
+      // Otherwise return just the context.
+      return isLongerThan1 ? [context] : [context, results];
+    });
+  });
+
   // Create the amalgamated html string.
-  var eventualResultsHtml = fold(isSuggestionsLongerThan1, function (isLongerThan1) {
-    return fold(cappedResults, function (match, matches) {
-      return matches + createMatchHTML(match, !isLongerThan1);
-    }, '');
-  }, '');
+  var eventualResultsHtml = fold(resultsTemplateContexts, foldResultsHtml, '')
 
   // Wait for string to finish building, then assign as HTML.
   fold(eventualResultsHtml, function (html) {
