@@ -1148,10 +1148,10 @@ module.exports = fold
 
 });
 
-require.define("/node_modules/reducers/node_modules/eventual/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./index.js"}
+require.define("/node_modules/eventual/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./index.js"}
 });
 
-require.define("/node_modules/reducers/node_modules/eventual/type.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
+require.define("/node_modules/eventual/type.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
 
 var watchers = require("watchables/watchers")
 var watch = require("watchables/watch")
@@ -1311,10 +1311,10 @@ module.exports = Eventual
 
 });
 
-require.define("/node_modules/reducers/node_modules/watchables/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./index.js"}
+require.define("/node_modules/watchables/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./index.js"}
 });
 
-require.define("/node_modules/reducers/node_modules/watchables/watchers.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
+require.define("/node_modules/watchables/watchers.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
 
 var method = require("method")
 
@@ -1325,7 +1325,7 @@ module.exports = watchers
 
 });
 
-require.define("/node_modules/reducers/node_modules/watchables/watch.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
+require.define("/node_modules/watchables/watch.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
 
 var method = require("method")
 var watchers = require("./watchers")
@@ -1343,10 +1343,10 @@ module.exports = watch
 
 });
 
-require.define("/node_modules/reducers/node_modules/eventual/node_modules/pending/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./index.js"}
+require.define("/node_modules/eventual/node_modules/pending/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./index.js"}
 });
 
-require.define("/node_modules/reducers/node_modules/eventual/node_modules/pending/await.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
+require.define("/node_modules/eventual/node_modules/pending/await.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
 
 var method = require("method")
 
@@ -1359,7 +1359,7 @@ module.exports = await
 
 });
 
-require.define("/node_modules/reducers/node_modules/eventual/node_modules/pending/is.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
+require.define("/node_modules/eventual/node_modules/pending/is.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
 
 var method = require("method")
 
@@ -1374,7 +1374,7 @@ module.exports = isPending
 
 });
 
-require.define("/node_modules/reducers/node_modules/eventual/deliver.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
+require.define("/node_modules/eventual/deliver.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
 
 // Anyone crating an eventual will likely need to realize it, requiring
 // dependency on other package is complicated, not to mention that one
@@ -1384,7 +1384,7 @@ module.exports = require("pending/deliver")
 
 });
 
-require.define("/node_modules/reducers/node_modules/eventual/node_modules/pending/deliver.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
+require.define("/node_modules/eventual/node_modules/pending/deliver.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
 
 var method = require("method")
 // Method delivers pending value.
@@ -1394,7 +1394,7 @@ module.exports = deliver
 
 });
 
-require.define("/node_modules/reducers/node_modules/eventual/when.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
+require.define("/node_modules/eventual/when.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
 
 var method = require("method")
 var when = method("when")
@@ -1410,7 +1410,7 @@ module.exports = when
 
 });
 
-require.define("/node_modules/reducers/node_modules/eventual/defer.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
+require.define("/node_modules/eventual/defer.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
 
 var Eventual = require("./type")
 var defer = function defer() { return new Eventual() }
@@ -2416,67 +2416,6 @@ score.make = Calculator
 module.exports = score
 });
 
-require.define("/node_modules/functional/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./index.js"}
-});
-
-require.define("/node_modules/functional/compose.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
-
-var slicer = Array.prototype.slice
-
-module.exports = compose
-function compose() {
-  /**
-  Returns the composition of a list of functions, where each function
-  consumes the return value of the function that follows. In math
-  terms, composing the functions `f()`, `g()`, and `h()` produces
-  `f(g(h()))`.
-  Usage:
-  var greet = function(name) { return 'hi: ' + name }
-  var exclaim = function(statement) { return statement + '!' }
-  var welcome = compose(exclaim, greet)
-  welcome('moe')
-  // => 'hi: moe!'
-  **/
-
-  var lambdas = slicer.call(arguments)
-  return function composed() {
-    var params = slicer.call(arguments)
-    var index = lambdas.length
-    var result = [lambdas[--index].apply(this, params)]
-    while (0 <= --index) result[0] = lambdas[index].apply(this, result)
-    return result[0]
-  }
-}
-
-});
-
-require.define("/node_modules/functional/partial.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
-
-var slicer = Array.prototype.slice
-
-module.exports = partial
-function partial(lambda) {
-  /**
-  Function composes new function out of given `lambda` with rest of the
-  arguments curried.
-
-  ## Example
-
-      function sum(x, y) { return x + y }
-      var inc = partial(sum, 1)
-
-      inc(5) // => 6
-  **/
-  var curried = slicer.call(arguments, 1)
-  return function partial() {
-    var params = slicer.call(arguments)
-    params.unshift.apply(params, curried)
-    return lambda.apply(this, params)
-  }
-}
-
-});
-
 require.define("/node_modules/oops/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./oops.js"}
 });
 
@@ -2495,6 +2434,9 @@ var field = curry(function(id, hash) {
 
 module.exports = field
 
+});
+
+require.define("/node_modules/functional/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./index.js"}
 });
 
 require.define("/node_modules/functional/curry.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
@@ -2743,25 +2685,6 @@ function into(source, buffer) {
 }
 
 module.exports = into
-
-});
-
-require.define("/node_modules/eventual/package.json",function(require,module,exports,__dirname,__filename,process,global){module.exports = {"main":"./index.js"}
-});
-
-require.define("/node_modules/eventual/when.js",function(require,module,exports,__dirname,__filename,process,global){"use strict";
-
-var method = require("method")
-var when = method("when")
-
-when.define(function(value, onRealize) {
-  return typeof(onRealize) === "function" ? onRealize(value) : value
-})
-when.define(Error, function(error, onRealize, onError) {
-  return typeof(onError) === "function" ? onError(error) : error
-})
-
-module.exports = when
 
 });
 
@@ -3599,8 +3522,6 @@ var open = require('dom-reduce/event');
 var print = require('reducers/debug/print');
 var zip = require('zip-reduce');
 var grep = require('./grep-reduce');
-var compose = require('functional/compose');
-var partial = require('functional/partial');
 var field = require('oops/field');
 var query = require('oops/query');
 var dropRepeats = require('transducer/drop-repeats');
@@ -3608,14 +3529,7 @@ var take = require('reducers/take');
 var takeWhile = require('reducers/take-while');
 var into = require('reducers/into');
 var when = require('eventual/when');
-
-var kicks = require('./kicks.js'),
-    apply = kicks.apply,
-    slice = kicks.slice,
-    reverse = kicks.reverse,
-    lambda = kicks.lambda,
-    extend = kicks.extend;
-
+var extend = require('./kicks').extend;
 
 var apps = require('./assets/apps.json');
 var contacts = require('./assets/contacts.json');
@@ -3736,11 +3650,19 @@ function reverse(reducible) {
 }
 
 function sortFirstX(reducible, sampleSize, sortingFunction) {
-  // Gives you the
   // Take the first 100 results and use those.
   var firstX = take(reducible, sampleSize);
   var bottomX = sort(firstX, sortingFunction);
   return reverse(bottomX);
+}
+
+function isLongerThan(reducible, length) {
+  // Test if a reducible is greater than a given length.
+  // Returns an eventual.
+  var sample = into(take(reducible, length + 1), []);
+  return when(sample, function (array) {
+    return array.length > length;
+  });
 }
 
 function createActionArticle(title, subtitle, className) {
@@ -3750,53 +3672,67 @@ function createActionArticle(title, subtitle, className) {
     '</article>';
 }
 
+function foldResultsHtml(result, string) {
+  return string + createActionArticle(result.title, result.url, 'action-result');
+}
+
+function createResultsSectionHtml(results) {
+  // Returns an eventual... maybe.
+  var resultsHtml = fold(results, foldResultsHtml, '');
+  return fold(resultsHtml, function (resultsHtml) {
+    return resultsHtml ? '<section class="action-results">' +
+    resultsHtml + '</section>' : '';
+  });
+}
+
+function createTelHtml(context, results) {
+  var resultsHtml = createResultsSectionHtml(results);
+  var subtitle = context.trailing || context.tel;
+
+  return '<article class="action-entry">' +
+    '<h1 class="title">' + context.title + '</h1>' +
+    '<span class="subtitle">' + subtitle + '</span>' +
+    '</article>' + resultsHtml;
+}
+
 // Used by createMatchHTML.
 var renderType = {
-  'contact': function(input, title, trailingText) {
-    var subtitle = trailingText || input.tel;
+  'contacts.gaiamobile.org': createTelHtml,
+  'messages.gaiamobile.org': createTelHtml,
+  'dialer.gaiamobile.org': createTelHtml,
 
-    return '<article class="action-entry">' +
-      '<h1 class="title">' + title + '</h1>' +
-      '<span class="subtitle">' + subtitle + '</span>' +
-      '</article>';
-  },
-
-  'web': function(input, title, trailingText) {
-    var resultsHtml = input.results.reduce(function reduceResults(html, result) {
-      return html + createActionArticle(result.title, result.url, 'action-result');
-    }, '');
-
+  'browser.gaiamobile.org': function(context, results) {
+    var resultsHtml = createResultsSectionHtml(results);
     return '<article class="action-entry">' +
       '<h1 class="title">Web Results</h1>' +
-      '</article>' +
-      '<section class="action-results">' + 
-      resultsHtml +
-      '</section>';
+      '<span class="subtitle">' + context.title + '</span>' +
+      '</article>' + resultsHtml;
   },
 
-  'default': function(input, title, trailingText) {
-    var subtitle = trailingText || input.subtitle;
+  'default': function(context, results) {
+    var resultsHtml = createResultsSectionHtml(results);
+    var subtitle = context.trailing || context.subtitle || '';
     return '<article class="action-entry">' +
-      '<h1 class="title">' + title + '</h1>' +
+      '<h1 class="title">' + context.title + '</h1>' +
       '<span class="subtitle">' + subtitle + '</span>' +
-      '</article>';
+      '</article>' +
+      resultsHtml;
   }
 };
 
-function createMatchHTML(match) {
+function createMatchHtml(context, results) {
   // Creates the HTML string for a single match.
-
-  var appClassname = escStringForClassname(match.app.id);
-  var title = compileCaption(match.action, match.input);
-  var trailingText = (match.action.parameterized &&
-                      match.trailingText) ? match.trailingText :  '';
-
-  var renderFunc = renderType[match.inputType] || renderType['default'];
+  var renderFunc = renderType[context.id] || renderType['default'];
 
   // Eventually, we need a better way to handle this stuff. Templating? Mustache? writer() from reflex?
-  return '<li class="action-match ' + appClassname + '">' +
-    renderFunc(match.input, title, trailingText) +
-    '</li>';
+  return renderFunc(context, results);
+}
+
+function foldMatchHtml(pair, string) {
+  var result = createMatchHtml.apply(null, pair);
+  return (string + '<li class="action-match ' + pair[0].className + '">' +
+    result +
+    '</li>');
 }
 
 function searchWithVerb(terms) {
@@ -4015,29 +3951,56 @@ fold(resultSetsOverTime, function (resultSet) {
   // And take only the top 20.
   var cappedResults = take(top100Actions, 20);
 
-  // Create the amalgamated HTML string.
-  var eventualHtml = fold(cappedResults, function (match, matches) {
-    return matches + createMatchHTML(match);
-  }, '');
+  var isSuggestionsLongerThan1 = isLongerThan(suggestions, 1);
+
+  // Create object specifically for HTML templating.
+  var resultsTemplateContexts = fold(isSuggestionsLongerThan1, function (isLongerThan1) {
+    return map(cappedResults, function resultToTemplateContext(result) {
+      // Capture fake search results.
+      var results = result.input.results;
+
+      // Create a template object for basic compact view.
+      var context = extend({
+        id: result.app.id,
+        className: escStringForClassname(result.app.id),
+        title: compileCaption(result.action, result.input),
+        trailing: ((result.action.parameterized && result.trailingText) ?
+          result.trailingText :  ''),
+        expanded: isLongerThan1,
+        type: result.inputType
+      }, result.input)
+
+      // Sloppy. Ideally, we should split out results upstream. Or rather, they
+      // should probably be a separate stream.
+      delete context.results;
+
+      // Return template context + results if we only have one match.
+      // Otherwise return just the context.
+      return isLongerThan1 ? [context, []] : [context, results];
+    });
+  });
+
+  // Create the amalgamated html string.
+  var eventualResultsHtml = fold(resultsTemplateContexts, foldMatchHtml, '')
 
   // Wait for string to finish building, then assign as HTML.
-  fold(eventualHtml, function (html) {
+  fold(eventualResultsHtml, function (html) {
     matchesContainer.innerHTML = html;
   });
 
-  // Take the first 100 results and use as the sample size for sorting by score..
-  var top100Suggestions = sortFirstX(suggestions, 100, compareSuggestions);
-  var cappedSuggestions = take(top100Suggestions, 3);
-
   // Filter out suggestions that are equivalent to the terms already in the
   // action bar.
-  var validSuggestionTitles = filter(cappedSuggestions, function (suggestion) {
+  var validSuggestionTitles = filter(suggestions, function (suggestion) {
     var title = suggestion[0].noun.serialized;
     return title.toLowerCase() !== resultSet.query.toLowerCase();
   });
 
+  // Take the first 100 results and use as the sample size for sorting by score..
+  var top100ValidSuggestions = sortFirstX(validSuggestionTitles, 100, compareSuggestions);
+  var cappedSuggestions = take(top100ValidSuggestions, 3);
+
   // Transform the limited set of suggestions into strings.
-  var suggestionTemplateContexts = map(validSuggestionTitles, function fromSuggestionToTitleAndMatch(suggestion) {
+  var suggestionTemplateContexts = map(cappedSuggestions, function fromSuggestionToTitleAndMatch(suggestion) {
     return {
       title: suggestion[0].noun.serialized,
       matches: suggestion[2]
@@ -4065,6 +4028,20 @@ fold(resultSetsOverTime, function (resultSet) {
   });
 });
 
+if(navigator.mozApps) {
+    var btn = document.getElementById('install');
+
+    btn.addEventListener('click', function() {
+        navigator.mozApps.install(location.href + 'manifest.webapp');
+    });
+    
+    var req = navigator.mozApps.getSelf();
+    req.onsuccess = function() {
+        if(!req.result) {
+            document.getElementById('install').style.display = 'block';
+        }
+    };
+}
 
 });
 require("/index.js");
