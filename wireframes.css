@@ -76,7 +76,14 @@ html .sticky:hover:after {
 }
 
 .step-title {
-  font: normal normal 14px/20px sans-serif;
-  color: #555;
-  margin: 0 0 10px;
+  font: normal normal 18px/20px "MozTT", sans-serif;
+  color: #E66000;
+  margin: 10px 0 10px;
+}
+
+.step-intro {
+  font: 14px/20px "MozTT", sans-serif;
+  color: #444;
+  margin: 0 0 20px;
+  width: 320px;
 }

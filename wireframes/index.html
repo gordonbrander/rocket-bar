@@ -13,25 +13,16 @@
 </head>
 <body>
 <section class="step">
-  <h1 class="step-title">Step 1: type in "jo"</h1>
-  <aside class="sticky" style="top: 40px;">
+  <h1 class="step-title">Find everything from one place</h1>
+  <p class="step-intro">Emails, SMSs, Contacts... everything on your phone is at the tip of your fingers.</p>
+
+  <aside class="sticky" style="top: 250px;">
     <p>Scenario: want to grab lunch with a colleague.</p>
     <p>1. Start typing his name: "jo..."</p>
     <p>A list of autocompletions is suggested from the phonebook, live as I type,
     along with actions that match.</p>
   </aside>
-  <aside class="sticky" style="top: 140px;">
-    <p><b>Hybrid</b> (chosen approach): display up to 4 noun autocompletions at
-    the top of the list of actions. Tapping these autocompletions will fill
-    RocketBar with this value. When only one noun is matched, display
-    "rich" widgets.</p>
-
-    <p>Only one widget per noun. Highest grep rank with widget view gets to widget.</p>
-
-    <p>All actions provided as noun+verb in a single action. Actions are sorted
-    and ranked by grep score + any modifier scores.</p>
-  </aside>
-  <aside class="sticky" style="top: 300px;"> 
+  <aside class="sticky" style="top: 380px;"> 
     <ul>
       <li>Rendered matches are sorted according to grep score
         <ul>
@@ -83,48 +74,70 @@
       </div>
       <ul class="action-matches action-list" id="matches">
         <li class="action-match messages-gaiamobile-org">
-          <article class="action-entry">
-            <b class="title">SMS John Doe</b>
-            <span class="subtitle">(555) 555-5555</span>
-          </article>
+          <section class="action-results">
+            <article class="action-result">
+              <h1 class="title">John Doe</h1>
+              <p class="subtitle">Still interested in lunch tomorrow?</p>
+            </article>
+            <article class="action-result">
+              <h1 class="title">Johnny Fedora</h1>
+              <p class="subtitle">Hey man! I'm in SF. Up for a beer?</p>
+            </article>
+            <article class="action-result">
+              <h1 class="title">Alice Smith</h1>
+              <p class="subtitle">There's a good burger joint up by Yerba Buena called Super Duper</p>
+            </article>
+          </section>
         </li>
         <li class="action-match contacts-gaiamobile-org">
-          <article class="action-entry">
-            <b class="title">John Doe</b>
-            <span class="subtitle">(555) 555-5555</span>
-          </article>
-        </li>
-        <li class="action-match contacts-gaiamobile-org">
-          <article class="action-entry">
-            <b class="title">Johnny Fedora</b>
-            <span class="subtitle">(555) 555-5555</span>
-          </article>
+          <section class="action-results">
+            <article class="action-result">
+              <h1 class="title">John Doe</h1>
+              <p class="subtitle">(555) 555-5555</p>
+            </article>
+            <article class="action-result">
+              <h1 class="title">Johnny Fedora</h1>
+              <p class="subtitle">(555) 555-5555</p>
+            </article>
+          </section>
         </li>
         <li class="action-match music-gaiamobile-org">
           <article class="action-entry">
-            <h1 class="title">Play Johnny Cash</h1>
+            <h1 class="title">Johnny Cash</h1>
             <span class="subtitle">Artist / 14 songs / 3 Albums</span>
           </article>
         </li>
-        <li class="action-match imdb-com">
-          <article class="action-entry">
-            <h1 class="title">Joss Whedon &mdash; IMDb</h1>
-            <span class="subtitle">imdb.com &mdash; Avengers, Toy Story, Buffy the Vampire Slayer</span>
-          </article>
+        <li class="action-match email-gaiamobile-org">
+          <section class="action-results">
+            <article class="action-result">
+              <h1 class="title">Amy Jo Johnson</h1> <p class="subtitle">Re: Espresso tips from a pro</p>
+            </article>
+            <article class="action-result">
+              <h1 class="title">Johnny Fedora</h1>
+              <p class="subtitle">Hey man! I'm in SF. Up for a beer?</p>
+            </article>
+            <article class="action-result">
+              <h1 class="title">Alice Smith</h1>
+              <p class="subtitle">There's a good burger joint up by Yerba Buena called Super Duper</p>
+            </article>
+          </section>
         </li>
       </ul>
     </form>
   </div>
 </section>
 <section class="step">
-  <h1 class="step-title">Step 2: John Doe</h1>
-  <aside class="sticky" style="top: 40px;">
+  <h1 class="step-title">Conversation feeds put you in the center</h1>
+  <p class="step-intro">No more trying to remember where you saw that message.
+  Search for a contact and find every
+  conversation in one&nbsp;place.</p>
+  <aside class="sticky" style="top: 130px;">
     <p>2. Tap autocompletion.</p>
     <p>A list of actions + widgets appears for the subject "John Doe".</p>
     <p>Widgets include action for app + a list of matching search results from that app</p>
   </aside>
 
-  <aside class="sticky" style="top: 140px;">
+  <aside class="sticky" style="top: 240px;">
     <p>Once we have a defined verb, matches may show search results in addition
     to actions for each match.</p>
     <p>Widgets should only render after we have a defined verb.</p>
@@ -180,17 +193,32 @@
         </li>
         <li class="action-match facebook-com">
           <article class="action-entry">
-            <h1 class="title">John Doe</h1>
+            <h1 class="title">Message John Doe</h1>
             <span class="subtitle">Facebook Message</span>
           </article>
+          <section class="action-results">
+            <article class="action-result">
+              <h1 class="title">Thank you for getting in touch. Yesterday's&hellip;</h1>
+              <p class="subtitle">Yesterday at 9:00am</p>
+            </article>
+            <article class="action-result">
+              <h1 class="title">I should be able to drop by before we&hellip;</h1>
+              <p class="subtitle">Yesterday at 9:00am</p>
+            </article>
+          </section>
         </li>
       </ul>
     </form>
   </div>
 </section>
 <section class="step">
-  <h1 class="step-title">Step 3: John Doe how about sushi tomorrow?</h1>
-  <aside class="sticky" style="top: 40px;">
+  <h1 class="step-title">Actions: speak louder with verbs</h1>
+  <p class="step-intro">
+    RocketBar does more than just search. Compose messages simply by typing a
+    name and message.
+  </p>
+
+  <aside class="sticky" style="top: 110px;">
     <p>3. Keep typing: "how about lunch tomorrow?"</p>
     <p>Actions are fille with additional context.</p>
     <p>Actions that don't support context are filtered out.</p>
@@ -210,32 +238,12 @@
             <h1 class="title">SMS John Doe</h1>
             <span class="subtitle">how about sushi tomorrow?</span>
           </article>
-          <section class="action-results">
-            <article class="action-result action-result-unread">
-              <h1 class="title">Still interested in lunch tomorrow?</h1>
-              <p class="subtitle">Yesterday at 9:00am</p>
-            </article>
-          </section>
         </li>
            <li class="action-match email-gaiamobile-org">
           <article class="action-entry">
             <h1 class="title">Email John Doe</h1>
             <span class="subtitle">how about sushi tomorrow?</span>
           </article>
-          <section class="action-results">
-            <article class="action-result action-result-unread">
-              <h1 class="title">In SFO for Asymconf</h1>
-              <p class="subtitle">Yesterday &mdash; I was thinking about using Caltrain since the</p>
-            </article>
-            <article class="action-result action-result-unread">
-              <h1 class="title">Re: 1.1 Review meeting notes</h1>
-              <p class="subtitle">Jan 23 &mdash; Awesome, thank you sir, that all makes perfect sense :)</p>
-            </article>
-            <article class="action-result">
-              <h1 class="title">FXOS Icon Guidelines</h1>
-              <p class="subtitle">Dec 11 &mdash; Speaking of which: http://www.mozilla.org/en-US/styleguide/products/firefoxos/icons/</p>
-            </article>
-          </section>
         </li>
         <li class="action-match facebook-com">
           <article class="action-entry">
@@ -248,8 +256,10 @@
   </div>
 </section>
 <section class="step">
-  <h1 class="step-title">Step 4: Search sushi</h1>
-  <aside class="sticky" style="top: 40px;">
+  <h1 class="step-title">Results on your phone and in the cloud</h1>
+  <p class="step-intro">The entire web at your fingertips. Microformats and APIs
+  offer native integration with websites and search results.</p>
+  <aside class="sticky" style="top: 130px;">
     <p>3. John responds: "where do you want to get lunch?"</p>
     <p>Type "sushi" to find local results.</p>
     <p>A list of actions + widgets appears for the subject "sushi".</p>
@@ -284,34 +294,29 @@
           </section>
         </li>
         <li class="action-match browser-gaiamobile-org">
-          <article class="action-entry">
-            <h1 class="title">Shabu Shabu Sushi</h1>
-            <span class="subtitle">Inner Richmond (Up to 52% Off)</span>
-          </article>
-        </li>
-        <li class="action-match browser-gaiamobile-org">
-          <article class="action-entry">
-            <b class="title">Sushi Guide</b>
-            <span class="subtitle">eatsushi.com &mdash; The best, most complete sushi website. With an extensive sushi</span>
-          </article>
-        </li>
-        <li class="action-match browser-gaiamobile-org">
-          <article class="action-entry">
-            <b class="title">The Sushi FAQ</b>
-            <span class="subtitle">sushifaq.com &mdash; What is sushi? What is sashimi? The Sushi FAQ is devoted to sushi and its culture.</span>
-          </article>
-        </li>
-        <li class="action-match browser-gaiamobile-org">
-          <article class="action-entry">
-            <b class="title">Blowfish Sushi to Die For</b>
-            <span class="subtitle">blowfishsushi.com</span>
-          </article>
-        </li>
-        <li class="action-match browser-gaiamobile-org">
-          <article class="action-entry">
-            <b class="title">Tataki</b>
-            <span class="subtitle">tatakisushibar.com</span>
-          </article>
+          <section class="action-results">
+            <h1 class="title">Web Results for Sushi</h1>
+            <article class="action-result">
+              <h1 class="title">Shabu Shabu Sushi</h1>
+              <span class="subtitle">Inner Richmond (Up to 52% Off)</span>
+            </article>
+            <article class="action-result">
+              <b class="title">Sushi Guide</b>
+              <span class="subtitle">eatsushi.com &mdash; The best, most complete sushi website. With an extensive sushi</span>
+            </article>
+            <article class="action-result">
+              <b class="title">The Sushi FAQ</b>
+              <span class="subtitle">sushifaq.com &mdash; What is sushi? What is sashimi? The Sushi FAQ is devoted to sushi and its culture.</span>
+            </article>
+            <article class="action-result">
+              <b class="title">Blowfish Sushi to Die For</b>
+              <span class="subtitle">blowfishsushi.com</span>
+            </article>
+            <article class="action-result">
+              <b class="title">Tataki</b>
+              <span class="subtitle">tatakisushibar.com</span>
+            </article>
+          </section>
         </li>
       </ul>
     </form>
