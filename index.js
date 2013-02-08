@@ -167,9 +167,22 @@ function createActionArticle(title, subtitle, className) {
     '</article>';
 }
 
+function reduceResultsHtml(string, result) {
+  return string + createActionArticle(result.title, result.url, 'action-result');
+}
+
+function createResultsSectionHtml(results) {
+  var resultsHtml = results.reduce(reduceResultsHtml, '');
+
+  return resultsHtml ?
+    ('<section class="action-results">' +
+    resultsHtml +
+    '</section>') : '';
+}
+
 // Used by createMatchHTML.
 var renderType = {
-  'contact': function(context, results) {
+  'contacts.gaiamobile.org': function(context, results) {
     var subtitle = context.trailing || context.tel;
 
     return '<article class="action-entry">' +
@@ -178,25 +191,17 @@ var renderType = {
       '</article>';
   },
 
-  'web': function(context, results) {
-    var resultsHtml = results.reduce(function reduceResults(html, result) {
-      return html + createActionArticle(result.title, result.url, 'action-result');
-    }, '');
-
-    var resultSection = resultsHtml ?
-      ('<section class="action-results">' +
-      resultsHtml +
-      '</section>') : '';
-
+  'browser.gaiamobile.org': function(context, results) {
+    var resultsHtml = createResultsSectionHtml(results);
     return '<article class="action-entry">' +
       '<h1 class="title">Web Results</h1>' +
       '<span class="subtitle">' + context.title + '</span>' +
       '</article>' +
-      resultSection;
+      resultsHtml;
   },
 
   'default': function(context, results) {
-    var subtitle = context.trailing || context.subtitle;
+    var subtitle = context.trailing || context.subtitle || '';
     return '<article class="action-entry">' +
       '<h1 class="title">' + context.title + '</h1>' +
       '<span class="subtitle">' + subtitle + '</span>' +
@@ -206,7 +211,7 @@ var renderType = {
 
 function createMatchHtml(context, results) {
   // Creates the HTML string for a single match.
-  var renderFunc = renderType[context.type] || renderType['default'];
+  var renderFunc = renderType[context.id] || renderType['default'];
 
   // Eventually, we need a better way to handle this stuff. Templating? Mustache? writer() from reflex?
   return renderFunc(context, results);
