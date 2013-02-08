@@ -197,8 +197,8 @@ of an .action-match. */
 
 .action-results > .title {
   color: #8a9699;
-  font-size: 10px;
-  margin: 0 0 7px;
+  font-size: 11px;
+  margin: 7px 0 14px;
   text-transform: uppercase;
 }
 
