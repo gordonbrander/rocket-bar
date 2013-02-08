@@ -167,49 +167,56 @@ function createActionArticle(title, subtitle, className) {
     '</article>';
 }
 
-function reduceResultsHtml(string, result) {
+function foldResultsHtml(result, string) {
   return string + createActionArticle(result.title, result.url, 'action-result');
 }
 
 function createResultsSectionHtml(results) {
-  var resultsHtml = results.reduce(reduceResultsHtml, '');
+  // Returns an eventual... maybe.
+  var resultsHtml = fold(results, foldResultsHtml, '');
+  return fold(resultsHtml, function (resultsHtml) {
+    return resultsHtml ? '<section class="action-results">' +
+    resultsHtml + '</section>' : '';
+  });
+}
 
-  return resultsHtml ?
-    ('<section class="action-results">' +
-    resultsHtml +
-    '</section>') : '';
+function createTelHtml(context, results) {
+  var resultsHtml = createResultsSectionHtml(results);
+  var subtitle = context.trailing || context.tel;
+
+  return '<article class="action-entry">' +
+    '<h1 class="title">' + context.title + '</h1>' +
+    '<span class="subtitle">' + subtitle + '</span>' +
+    '</article>' + resultsHtml;
 }
 
 // Used by createMatchHTML.
 var renderType = {
-  'contacts.gaiamobile.org': function(context, results) {
-    var subtitle = context.trailing || context.tel;
-
-    return '<article class="action-entry">' +
-      '<h1 class="title">' + context.title + '</h1>' +
-      '<span class="subtitle">' + subtitle + '</span>' +
-      '</article>';
-  },
+  'contacts.gaiamobile.org': createTelHtml,
+  'messages.gaiamobile.org': createTelHtml,
+  'dialer.gaiamobile.org': createTelHtml,
 
   'browser.gaiamobile.org': function(context, results) {
     var resultsHtml = createResultsSectionHtml(results);
     return '<article class="action-entry">' +
       '<h1 class="title">Web Results</h1>' +
       '<span class="subtitle">' + context.title + '</span>' +
-      '</article>' +
-      resultsHtml;
+      '</article>' + resultsHtml;
   },
 
   'default': function(context, results) {
+    var resultsHtml = createResultsSectionHtml(results);
     var subtitle = context.trailing || context.subtitle || '';
     return '<article class="action-entry">' +
       '<h1 class="title">' + context.title + '</h1>' +
       '<span class="subtitle">' + subtitle + '</span>' +
-      '</article>';
+      '</article>' +
+      resultsHtml;
   }
 };
 
 function createMatchHtml(context, results) {
+  print(context);
   // Creates the HTML string for a single match.
   var renderFunc = renderType[context.id] || renderType['default'];
 
@@ -217,7 +224,7 @@ function createMatchHtml(context, results) {
   return renderFunc(context, results);
 }
 
-function foldResultsHtml(pair, string) {
+function foldMatchHtml(pair, string) {
   var result = createMatchHtml.apply(null, pair);
   return (string + '<li class="action-match ' + pair[0].className + '">' +
     result +
@@ -470,7 +477,7 @@ fold(resultSetsOverTime, function (resultSet) {
   });
 
   // Create the amalgamated html string.
-  var eventualResultsHtml = fold(resultsTemplateContexts, foldResultsHtml, '')
+  var eventualResultsHtml = fold(resultsTemplateContexts, foldMatchHtml, '')
 
   // Wait for string to finish building, then assign as HTML.
   fold(eventualResultsHtml, function (html) {
