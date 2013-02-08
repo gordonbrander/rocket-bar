@@ -85,6 +85,9 @@ elements can't ever be truly width: auto; */
   /* Contains absolute elements. */
   position: relative;
 }
+.action-match:nth-child(even) {
+  background: #313131;
+}
 
 /*
 .*-gaiamobile-org are modifier classes for .action-match.
@@ -106,7 +109,7 @@ Used to define background images for entries. */
   height: 30px;
   left: 7px;
   position: absolute;
-  top: 7px;
+  top: 10px;
   width: 30px;
 }
 
@@ -143,7 +146,8 @@ Used to define background images for entries. */
 Styling inner element instead of .action-match allows us to be more flexible
 with how actions are rendered (widgets, autocomplete, etc). */
 .action-match > .action-entry {
-  padding: 7px 7px 7px 45px;
+  height: 32px;
+  padding: 10px 10px 10px 45px;
 }
 
 /* General title and subtitle styles */
@@ -153,7 +157,7 @@ with how actions are rendered (widgets, autocomplete, etc). */
 .action-result > .title,
 .action-result > .subtitle {
   display: block;
-  font: normal normal 14px/16px MozTT, sans-serif;
+  font: normal normal 16px/18px MozTT, sans-serif;
   margin: 0;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -163,6 +167,7 @@ with how actions are rendered (widgets, autocomplete, etc). */
 .action-entry > .subtitle {
   color: #8a9699;
   font-size: 12px;
+  line-height: 14px;
 }
 
 .action-completions {
@@ -192,26 +197,38 @@ with how actions are rendered (widgets, autocomplete, etc). */
 /* Action results -- a list of results for a given query. Usually inside
 of an .action-match. */
 .action-results {
-  padding: 7px 7px 1px 45px;
+  overflow: hidden;
+  padding: 0 0 0 45px;
 }
 
 .action-results > .title {
   color: #8a9699;
-  font-size: 11px;
-  margin: 7px 0 14px;
+  font-size: 12px;
+  line-height: 18px;
+  margin: 14px 0 14px 0;
   text-transform: uppercase;
 }
 
 /* Action results are lists of search results from various apps. */
+.action-result,
+.action-results {
+  background: url(assets/result-delimiter.png) right 0 no-repeat;
+}
+.action-results:first-child,
+.action-result:first-child {
+  background: none;
+}
 .action-result {
-  margin-bottom: 14px;
+  height: 32px;
+  padding: 10px 10px 11px 0;
 }
 .action-result > .title {
-  font-size: 12px;
+  font-size: 14px;
+  line-height: 16px;
 }
 .action-result > .subtitle {
   color: #8a9699;
-  font-size: 11px;
+  font-size: 12px;
 }
 .action-result-unread {
   position: relative;
@@ -223,8 +240,12 @@ of an .action-match. */
   height: 7px;
   left: -26px;
   position: absolute;
-  top: 6px;
+  top: 13px;
   width: 7px;
+}
+
+.yelp-com-map {
+  display: block;
 }
 
 #install {
