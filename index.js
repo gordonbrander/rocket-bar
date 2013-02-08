@@ -216,7 +216,6 @@ var renderType = {
 };
 
 function createMatchHtml(context, results) {
-  print(context);
   // Creates the HTML string for a single match.
   var renderFunc = renderType[context.id] || renderType['default'];
 
