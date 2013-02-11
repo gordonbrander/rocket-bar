@@ -35,6 +35,7 @@
     "org":"",
     "tel":"(805) 625-2445",
     "url":"",
+    "email": "ali.imran@example.com"
     "adr":{
       "street_address":"",
       "locality":"",

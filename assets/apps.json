@@ -18,6 +18,23 @@
         "caption": "SMS %",
         "parameterized": true
       }
+    ],
+    "entries": [
+      {
+        "name": "Ali Imran",
+        "tel": "(805) 625-2445",
+        "content": "Still interested in lunch tomorrow?"
+      },
+      {
+        "name": "Ali Imran",
+        "tel": "(805) 625-2445",
+        "content": "Hey! I'm in SF. Up for a beer?"
+      },
+      {
+        "name": "Ali Imran",
+        "tel": "(805) 625-2445",
+        "content": "There's a good burger joint up by Yerba Buena called Super Duper"
+      }
     ]
   },
   {
@@ -47,6 +64,28 @@
         "names": ["mail", "email", "send"],
         "params": ["contact"],
         "caption": "Email %"
+      }
+    ],
+    "entries": [
+      {
+        "name": "Ali Imran",
+        "email": "ali.imran@example.com",
+        "content": "Re: Espresso tips from a pro"
+      },
+      {
+        "name": "Ali Imran",
+        "email": "ali.imran@example.com",
+        "content": "I was thinking about using Caltrain since the..."
+      },
+      {
+        "name": "Ali Imran",
+        "email": "ali.imran@example.com",
+        "content": "Speaking of which: http://www.mozilla.org/en-US/styleguide/products/firefoxos/icons/"
+      },
+      {
+        "name": "Ali Imran",
+        "email": "ali.imran@example.com",
+        "content": "Awesome, thank you, that all makes perfect sense :)"
       }
     ]
   },
