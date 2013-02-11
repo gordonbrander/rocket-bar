@@ -17,33 +17,14 @@
   {
     "serialized":"Hal Ambler",
     "name":"Hal Ambler",
-    "org":"",
     "tel":"(597) 877-6932",
-    "url":"",
-    "adr":{
-      "street_address":"",
-      "locality":"",
-      "region":"",
-      "postal_code":"",
-      "country_name":""
-    },
-    "note":""
+    "email": "hal.ambler@example.com"
   },
   {
     "serialized":"Ali Imran",
     "name":"Ali Imran",
-    "org":"",
     "tel":"(805) 625-2445",
-    "url":"",
     "email": "ali.imran@example.com"
-    "adr":{
-      "street_address":"",
-      "locality":"",
-      "region":"",
-      "postal_code":"",
-      "country_name":""
-    },
-    "note":""
   },
   {
     "serialized":"Jane Blonde",
@@ -258,17 +239,8 @@
   {
     "serialized":"Ada Wong",
     "name":"Ada Wong",
-    "org":"",
     "tel":"(748) 014-3944",
-    "url":"",
-    "adr":{
-      "street_address":"",
-      "locality":"",
-      "region":"",
-      "postal_code":"",
-      "country_name":""
-    },
-    "note":""
+    "email":"ada.wong@example.com"
   },
   {
     "serialized":"Jack Bauer",

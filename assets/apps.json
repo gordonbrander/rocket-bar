@@ -83,9 +83,34 @@
         "content": "Speaking of which: http://www.mozilla.org/en-US/styleguide/products/firefoxos/icons/"
       },
       {
-        "name": "Ali Imran",
-        "email": "ali.imran@example.com",
-        "content": "Awesome, thank you, that all makes perfect sense :)"
+        "name": "Hal Ambler",
+        "email": "hal.ambler@example.com",
+        "content": "Re: Thank you. Thanks for your help Monday. I'll get more details on the meeting tomorrow."
+      },
+      {
+        "name": "Ada Wong",
+        "email": "ada.wong@example.com",
+        "content": "I hope you are having a great holiday. We missed seeing you the other weekend."
+      },
+      {
+        "name": "Ada Wong",
+        "email": "ada.wong@example.com",
+        "content": "I forgot my phone today, so if you need me, you can reach me at this email address."
+      },
+      {
+        "name": "Ada Wong",
+        "email": "ada.wong@example.com",
+        "content": "Re: contact. The coordinator for the quote you requested on Monday 24th is OOO until the 30th."
+      },
+      {
+        "name": "Hal Ambler",
+        "email": "hal.ambler@example.com",
+        "content": "Hi everyone. I've mentioned to a few people that v3.4 is already coming pretty quickly."
+      },
+      {
+        "name": "Hal Ambler",
+        "email": "hal.ambler@example.com",
+        "content": "Tues 1/15 request. Hello dear friends! First of all i want to thank..."
       }
     ]
   },
