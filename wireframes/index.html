@@ -20,7 +20,7 @@
     <p>Scenario: want to grab lunch with a colleague.</p>
     <p>1. Start typing his name: "jo..."</p>
     <p>A list of autocompletions is suggested from the phonebook, live as I type,
-    along with actions that match.</p>
+    along with results that match.</p>
   </aside>
   <aside class="sticky" style="top: 380px;"> 
     <ul>
@@ -133,17 +133,12 @@
   conversation in one&nbsp;place.</p>
   <aside class="sticky" style="top: 130px;">
     <p>2. Tap autocompletion.</p>
-    <p>A list of actions + widgets appears for the subject "John Doe".</p>
-    <p>Widgets include action for app + a list of matching search results from that app</p>
+    <p>When there is a single subject match (e.g. "John Doe"), app results may
+    use an alternate "widget" form. This form usually includes an action
+    (subject + verb) and a list of results.</p>
+    <p>Widgets should only render after we have a single verb match.
+    E.g., we don't want 5 map widgets to bubble up if we have 5 matches for "Su".</p>
   </aside>
-
-  <aside class="sticky" style="top: 240px;">
-    <p>Once we have a defined verb, matches may show search results in addition
-    to actions for each match.</p>
-    <p>Widgets should only render after we have a defined verb.</p>
-    <p>E.g., we don't want 5 map widgets to bubble up if we have 5 matches for "Su".</p>
-  </aside>
-
   <div class="screen screen-320x480">
     <form action="" method="get" class="action-pallette">
       <div class="action-header">
@@ -220,8 +215,9 @@
 
   <aside class="sticky" style="top: 110px;">
     <p>3. Keep typing: "how about lunch tomorrow?"</p>
-    <p>Actions are fille with additional context.</p>
+    <p>Actions are filled with additional context.</p>
     <p>Actions that don't support context are filtered out.</p>
+    <p>We're in "action" mode now, so search results are filtered out.</p>
   </aside>
 
   <div class="screen screen-320x480">
@@ -247,7 +243,7 @@
         </li>
         <li class="action-match facebook-com">
           <article class="action-entry">
-            <h1 class="title">John Doe</h1>
+            <h1 class="title">Message John Doe</h1>
             <span class="subtitle">how about sushi tomorrow?</span>
           </article>
         </li>
