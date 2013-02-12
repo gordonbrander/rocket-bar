@@ -71,8 +71,58 @@ var NOUNS = expand(Object.keys(data), function(type) {
   });
 });
 
+// Create result stream.
+//
+// Find all apps with entries field.
+var appsWithEntries = filter(apps, function (app) {
+  return (app.entries) && (app.entries.length > 0);
+});
+
+// Transform all appsWithEntries into a flat list of entries, annotated with
+// an `app` property that contains the `app.id`.
+var entriesByApp = merge(map(appsWithEntries, function (app) {
+  return map(app.entries, function (entry) {
+    return extend(entry, { app: app.id });
+  });
+}));
+
+// TODO this stair-step process could be factored out into an array of steps.
+var entriesWithSerializedMessages = mapMatches(entriesByApp, isMessageEntry, function (entry) {
+  return extend(entry, { serialized: joinFields(entry, ['name', 'tel', 'content']) }); 
+});
+
+var entriesWithSerializedEmailAndMessages = mapMatches(entriesWithSerializedMessages, isEmailEntry, function (entry) {
+  return extend(entry, { serialized: joinFields(entry, ['name', 'email', 'content'] ) });
+});
+
+var ENTRIES = entriesWithSerializedEmailAndMessages;
+
 // Supporting functions
 // ----------------------------------------------------------------------------
+
+function joinFolder(string, accumulated) {
+  // Join a reducible of strings into a single space-separated string.
+  return !accumulated ? string : accumulated + ' ' + string;
+}
+
+function joinFields(object, keys) {
+  // Join string fields into a single string.
+  // Reducible -> String
+  var values = map(keys, function (key) {
+    return object[key];
+  });
+
+  return fold(values, joinFolder, '');
+}
+
+function isMessageEntry(entry) {
+  // entry object -> bool
+  return entry.app === 'messages.gaiamobile.org';
+}
+
+function isEmailEntry(entry) {
+  return entry.app === 'email.gaiamobile.org';
+}
 
 function split(reducible, predicate) {
   // Set splitting function.
@@ -88,6 +138,17 @@ function split(reducible, predicate) {
     filter(reducible, predicate),
     filter(reducible, reversePredicate)
   ];
+}
+
+function mapMatches(reducible, predicate, mapper) {
+  // Map only matches for a given predicate.
+  // Returns a reducible with only matches for predicate having been transformed
+  // via `mapper()`.
+  //
+  // Reducible -> Reducible
+  var xVsY = split(reducible, predicate);
+  var mappedX = map(xVsY[0], mapper);
+  return merge([mappedX, xVsY[1]]);
 }
 
 // Takes action object and input for that action and returns string
