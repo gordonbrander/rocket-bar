@@ -169,11 +169,11 @@ function convertQueryStringToPattern(queryString) {
   var trimmedString = queryString.trim();
   // Escape for RegExp safety.
   var escString = Pattern.escape(trimmedString);
-  // Replace spaces between words with "or". We match liberally.
-  var preppedString = escString.replace(/\s+/, '|');
+  // Replace spaces between words with match pattern.
+  var preppedString = escString.replace(/\s+/, '[^\\s]* ');
   // Create a RegExp pattern object via Pattern lib. Match globally and
   // case-insentitively.
-  return Pattern(preppedString, 'gi');
+  return Pattern(preppedString, 'i');
 }
 
 function createActionArticle(title, subtitle, className) {
@@ -424,7 +424,12 @@ var wordQueryStringsOverTime = filter(searchQueriesOverTime, function (string) {
   return reWord.test(string);
 });
 
-var searchPatternsOverTime = map(wordQueryStringsOverTime, convertQueryStringToPattern);
+var searchObjectsOverTime = map(wordQueryStringsOverTime, function (string) {
+  return {
+    query: string,
+    pattern: convertQueryStringToPattern(string)
+  };
+});
 
 // All queries that do not have words.
 var emptyQueryStringsOverTime = filter(searchQueriesOverTime, function (string) {
@@ -439,20 +444,16 @@ var soqsOverTime = map(emptyQueryStringsOverTime, function (string) {
 // special `SOQ` value is used at as delimiter to indicate results for
 // new query. This can be used by writer to flush previous inputs and
 // start writing now ones.
-var resultSetsOverTime = map(searchPatternsOverTime, function(pattern) {
+var resultSetsOverTime = map(searchObjectsOverTime, function(search) {
   // Search noun matches. Accesses closure variable NOUNS.
-  var nounMatches = grep(pattern, NOUNS, query("noun.serialized"));
+  var nounMatches = grep(search.pattern, NOUNS, query("noun.serialized"));
 
   return {
-    query: query,
+    query: search.query,
     suggestions: nounMatches,
     actions: expandNounMatchesToActions(nounMatches, actionsByType)
   };
 });
-
-// Merge result sets with SOQs. This is what we will react to in the user
-// interface.
-var resultsOverTime = merge([soqsOverTime, resultSetsOverTime]);
 
 var actionBarElement = document.getElementById('action-bar');
 
@@ -464,7 +465,14 @@ fold(clickedCompletionValuesOverTime, function (value) {
 var matchesContainer = document.getElementById('matches');
 var suggestionsContainer = document.getElementById('suggestions');
 
-fold(resultsOverTime, function (resultSet) {
+// Clear matches for every start of query over time.
+fold(soqsOverTime, function () {
+  matchesContainer.innerHTML = '';
+  suggestionsContainer.innerHTML = '';
+});
+
+// Update search results for every result set over time.
+fold(resultSetsOverTime, function (resultSet) {
   var actions = resultSet.actions;
   var suggestions = resultSet.suggestions;
 
@@ -537,16 +545,6 @@ fold(resultsOverTime, function (resultSet) {
   // Render the HTML for suggestions.
   fold(eventualSuggestionsHtml, function (html) {
     suggestionsContainer.innerHTML = html;
-  });
-
-  // Filter actions down to "start of query" actions.
-  var SOQs = filter(actions, function (match) {
-    return match === SOQ;
-  });
-
-  // Clear matches for every start of query.
-  fold(SOQs, function () {
-    matchesContainer.innerHTML = '';
   });
 });
 
