@@ -74,6 +74,22 @@ var NOUNS = expand(Object.keys(data), function(type) {
 // Supporting functions
 // ----------------------------------------------------------------------------
 
+function split(reducible, predicate) {
+  // Set splitting function.
+  // Split a reducible given a predicate function.
+  // Returns a reducible of reducibles consisting of a reducible of the items
+  // that match predicate, followed by a reducible of the items that do not
+  // match predicate.
+  function reversePredicate(item) {
+    // Reverse the boolean return value of the predicate function.
+    return !predicate(item);
+  }
+  return [
+    filter(reducible, predicate),
+    filter(reducible, reversePredicate)
+  ];
+}
+
 // Takes action object and input for that action and returns string
 // representing caption for the element rendered.
 function compileCaption(action, input, trailingText) {
@@ -348,24 +364,24 @@ var searchQueriesOverTime = dropRepeats(merge([
 // Cached RegExp object for testing if a word exists in a query.
 var reWord = /\S/;
 
-// All queries that have words.
-var wordQueryStringsOverTime = filter(searchQueriesOverTime, function (string) {
-  return reWord.test(string);
+// Split stream into 2 streams:
+//
+// 1. All queries that have words.
+// 2. All queries that do not have words.
+var wordsVsEmptyOverTime = split(searchQueriesOverTime, function containsWord(possibleWord) {
+  return reWord.test(possibleWord);
 });
 
-var searchObjectsOverTime = map(wordQueryStringsOverTime, function (string) {
+var searchObjectsOverTime = map(wordsVsEmptyOverTime[0], function (string) {
   return {
     query: string,
     pattern: convertQueryStringToPattern(string)
   };
 });
 
-// All queries that do not have words.
-var emptyQueryStringsOverTime = filter(searchQueriesOverTime, function (string) {
-  return !reWord.test(string);
-});
-
-var soqsOverTime = map(emptyQueryStringsOverTime, function (string) {
+// All queries that do not have words should be replaced by
+// Start of Query marker.
+var soqsOverTime = map(wordsVsEmptyOverTime[1], function (string) {
   return SOQ;
 });
 
