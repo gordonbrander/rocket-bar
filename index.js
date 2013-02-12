@@ -25,6 +25,7 @@ var takeWhile = require('reducers/take-while');
 var into = require('reducers/into');
 var when = require('eventual/when');
 var extend = require('./kicks').extend;
+var Pattern = require('pattern-exp');
 
 var apps = require('./assets/apps.json');
 var contacts = require('./assets/contacts.json');
@@ -158,6 +159,21 @@ function isLongerThan(reducible, length) {
   return when(sample, function (array) {
     return array.length > length;
   });
+}
+
+function convertQueryStringToPattern(queryString) {
+  // Take a string representing search terms, escape it, prepare it and
+  // turn it into a liberally matching pattern suitable for grep().
+  //
+  // Remove junk space.
+  var trimmedString = queryString.trim();
+  // Escape for RegExp safety.
+  var escString = Pattern.escape(trimmedString);
+  // Replace spaces between words with "or". We match liberally.
+  var preppedString = escString.replace(/\s+/, '|');
+  // Create a RegExp pattern object via Pattern lib. Match globally and
+  // case-insentitively.
+  return Pattern(preppedString, 'gi');
 }
 
 function createActionArticle(title, subtitle, className) {
@@ -301,14 +317,6 @@ function searchWithVerb(terms) {
   });
 }
 
-function grepNounMatches(terms, nouns) {
-  // Return a stream of matches from a stream of nouns matching terms.
-  // In this case we don't assume than any of the terms is a
-  // verb so we create pattern for nouns from all the terms.
-  var nounPattern = terms.join("[^\\s]* ");
-  return grep(nounPattern, nouns, query("noun.serialized"));
-}
-
 function expandNounMatchesToActions(nounMatches, actionsByType) {
   return expand(nounMatches, function(pair) {
     var score = pair[1];
@@ -367,7 +375,7 @@ var actionBarPressesOverTime = filter(keypressesOverTime, function (event) {
 
 // Create signal representing query entered into action bar.
 var actionBarValuesOverTime = map(actionBarPressesOverTime, function (event) {
-  return event.target.value.trim();
+  return event.target.value;
 });
 
 // Get all clicks that originated from an action-completion
@@ -408,24 +416,43 @@ var searchQueriesOverTime = dropRepeats(merge([
   actionBarValuesOverTime
 ]));
 
+// Cached RegExp object for testing if a word exists in a query.
+var reWord = /\S/;
+
+// All queries that have words.
+var wordQueryStringsOverTime = filter(searchQueriesOverTime, function (string) {
+  return reWord.test(string);
+});
+
+var searchPatternsOverTime = map(wordQueryStringsOverTime, convertQueryStringToPattern);
+
+// All queries that do not have words.
+var emptyQueryStringsOverTime = filter(searchQueriesOverTime, function (string) {
+  return !reWord.test(string);
+});
+
+var soqsOverTime = map(emptyQueryStringsOverTime, function (string) {
+  return SOQ;
+});
+
 // Continues signal representing search results for the entered query.
 // special `SOQ` value is used at as delimiter to indicate results for
 // new query. This can be used by writer to flush previous inputs and
 // start writing now ones.
-var resultSetsOverTime = map(searchQueriesOverTime, function(query) {
-  var terms = query.split(/\s+/);
-
-  if (!terms.length || !terms[0]) return SOQ;
-
+var resultSetsOverTime = map(searchPatternsOverTime, function(pattern) {
   // Search noun matches. Accesses closure variable NOUNS.
-  var nounMatches = grepNounMatches(terms, NOUNS);
+  var nounMatches = grep(pattern, NOUNS, query("noun.serialized"));
 
   return {
     query: query,
     suggestions: nounMatches,
-    actions: merge([ searchWithVerb(terms), expandNounMatchesToActions(nounMatches, actionsByType) ])
+    actions: expandNounMatchesToActions(nounMatches, actionsByType)
   };
 });
+
+// Merge result sets with SOQs. This is what we will react to in the user
+// interface.
+var resultsOverTime = merge([soqsOverTime, resultSetsOverTime]);
 
 var actionBarElement = document.getElementById('action-bar');
 
@@ -437,7 +464,7 @@ fold(clickedCompletionValuesOverTime, function (value) {
 var matchesContainer = document.getElementById('matches');
 var suggestionsContainer = document.getElementById('suggestions');
 
-fold(resultSetsOverTime, function (resultSet) {
+fold(resultsOverTime, function (resultSet) {
   var actions = resultSet.actions;
   var suggestions = resultSet.suggestions;
 
