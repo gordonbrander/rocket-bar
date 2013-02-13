@@ -86,19 +86,29 @@ var entriesByApp = merge(map(appsWithEntries, function (app) {
   });
 }));
 
-// TODO this stair-step process could be factored out into an array of steps.
-var entriesWithSerializedMessages = mapMatches(entriesByApp, isMessageEntry, function (entry) {
-  return extend(entry, { serialized: joinFields(entry, ['name', 'tel', 'content']) }); 
-});
-
-var entriesWithSerializedEmailAndMessages = mapMatches(entriesWithSerializedMessages, isEmailEntry, function (entry) {
-  return extend(entry, { serialized: joinFields(entry, ['name', 'email', 'content'] ) });
-});
-
-var ENTRIES = entriesWithSerializedEmailAndMessages;
+var ENTRIES = mapWithSerializedByPredicate(entriesByApp, [
+  [isMessageEntry, 'name', 'tel', 'content'],
+  [isEmailEntry, 'name', 'email', 'content']
+]);
 
 // Supporting functions
 // ----------------------------------------------------------------------------
+
+function extendWithSerialized(object, keys) {
+  // Add a property to an object, serialized, composed of concatenation of given
+  // keys.
+  return extend(object, { serialized: joinFields(object, keys) });
+}
+
+function mapWithSerializedByPredicate(reducible, steps) {
+  return merge(map(steps, function (step) {
+    var predicate = step[0];
+    var keys = step.slice(1);
+    return mapMatches(reducible, predicate, function (object) {
+      return extendWithSerialized(object, keys);
+    })
+  }));
+}
 
 function joinFolder(string, accumulated) {
   // Join a reducible of strings into a single space-separated string.
