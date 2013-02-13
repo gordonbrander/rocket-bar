@@ -185,21 +185,6 @@ function createElementFromString(string) {
   return dummyEl.firstChild;
 }
 
-function compareMatches(a, b) {
-  // Array.prototype.sort sorting function for ordering results.
-
-  // a is less than b by some ordering criterion
-  if (a.score < b.score) {
-    return -1;
-  }
-  // a is greater than b by the ordering criterion.
-  if (a.score > b.score) {
-    return 1;
-  }
-  // a must be equal to b
-  return 0;
-}
-
 function compareGrepResults(a, b) {
   // Array.prototype.sort sorting function for ordering results.
 
@@ -479,7 +464,12 @@ var matchedNounSetsOverTime = map(nounResultSetsOverTime, function (nounResultSe
   return nounResultSet.matchedNouns;
 });
 
-var actionSetsOverTime = map(matchedNounSetsOverTime, function (matchedNouns) {
+var topNounSetsOverTime = map(matchedNounSetsOverTime, function (matchedNouns) {
+  return sortFirstX(matchedNouns, 200, compareGrepResults);
+});
+
+var actionSetsOverTime = map(topNounSetsOverTime, function (matchedNouns) {
+  print(matchedNouns);
   return expandNounMatchesToActions(matchedNouns, actionsByType);
 });
 
@@ -505,10 +495,8 @@ fold(soqsOverTime, function () {
 });
 
 fold(actionSetsOverTime, function foldActionSetsOverTime(actions) {
-  // Take the first 100 results and use as the sample size for sorting by score..
-  var top100Actions = sortFirstX(actions, 100, compareMatches);
-  // And take only the top 20.
-  var cappedResults = take(top100Actions, 20);
+  // Take only the top 20.
+  var cappedResults = take(actions, 20);
 
   var resultsTemplateContexts = map(cappedResults, function resultToTemplateContext(result) {
     // Capture fake search results.
