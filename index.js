@@ -453,19 +453,24 @@ var soqsOverTime = map(wordsVsEmptyOverTime[1], function (string) {
   return SOQ;
 });
 
-// Continues signal representing search results for the entered query.
-// special `SOQ` value is used at as delimiter to indicate results for
-// new query. This can be used by writer to flush previous inputs and
-// start writing now ones.
-var resultSetsOverTime = map(searchPatternPairsOverTime, function(pair) {
+// A signal representing all nouns matching the current query over time.
+var nounResultSetsOverTime = map(searchPatternPairsOverTime, function (pair) {
+  var pattern = pair[0];
   // Search noun matches. Accesses closure variable NOUNS.
-  var nounMatches = grep(pair[0], NOUNS, query("noun.serialized"));
+  var matchedNouns = grep(pattern, NOUNS, query("noun.serialized"));
 
   return {
     query: pair[1],
-    suggestions: nounMatches,
-    actions: expandNounMatchesToActions(nounMatches, actionsByType)
+    matchedNouns: matchedNouns
   };
+});
+
+var matchedNounSetsOverTime = map(nounResultSetsOverTime, function (nounResultSet) {
+  return nounResultSet.matchedNouns;
+});
+
+var actionSetsOverTime = map(matchedNounSetsOverTime, function (matchedNouns) {
+  return expandNounMatchesToActions(matchedNouns, actionsByType);
 });
 
 var actionBarElement = document.getElementById('action-bar');
@@ -484,58 +489,53 @@ fold(soqsOverTime, function () {
   suggestionsContainer.innerHTML = '';
 });
 
-// Update search results for every result set over time.
-fold(resultSetsOverTime, function (resultSet) {
-  var actions = resultSet.actions;
-  var suggestions = resultSet.suggestions;
-
+fold(actionSetsOverTime, function foldActionSetsOverTime(actions) {
   // Take the first 100 results and use as the sample size for sorting by score..
   var top100Actions = sortFirstX(actions, 100, compareMatches);
   // And take only the top 20.
   var cappedResults = take(top100Actions, 20);
 
-  var isSuggestionsLongerThan1 = isLongerThan(suggestions, 1);
+  var resultsTemplateContexts = map(cappedResults, function resultToTemplateContext(result) {
+    // Capture fake search results.
+    var results = result.input.results;
 
-  // Create object specifically for HTML templating.
-  var resultsTemplateContexts = fold(isSuggestionsLongerThan1, function (isLongerThan1) {
-    return map(cappedResults, function resultToTemplateContext(result) {
-      // Capture fake search results.
-      var results = result.input.results;
+    // Create a template object for basic compact view.
+    var context = extend({
+      id: result.app.id,
+      className: escStringForClassname(result.app.id),
+      title: compileCaption(result.action, result.input),
+      trailing: ((result.action.parameterized && result.trailingText) ?
+        result.trailingText :  ''),
+      type: result.inputType
+    }, result.input)
 
-      // Create a template object for basic compact view.
-      var context = extend({
-        id: result.app.id,
-        className: escStringForClassname(result.app.id),
-        title: compileCaption(result.action, result.input),
-        trailing: ((result.action.parameterized && result.trailingText) ?
-          result.trailingText :  ''),
-        expanded: isLongerThan1,
-        type: result.inputType
-      }, result.input)
+    // Sloppy. Ideally, we should split out results upstream. Or rather, they
+    // should probably be a separate stream.
+    delete context.results;
 
-      // Sloppy. Ideally, we should split out results upstream. Or rather, they
-      // should probably be a separate stream.
-      delete context.results;
-
-      // Return template context + results if we only have one match.
-      // Otherwise return just the context.
-      return isLongerThan1 ? [context, []] : [context, results];
-    });
+    // Return template context + results if we only have one match.
+    // Otherwise return just the context.
+    return [context, []];
   });
 
   // Create the amalgamated html string.
   var eventualResultsHtml = fold(resultsTemplateContexts, foldMatchHtml, '')
 
   // Wait for string to finish building, then assign as HTML.
-  fold(eventualResultsHtml, function (html) {
+  fold(eventualResultsHtml, function foldEventualResultsHtml(html) {
     matchesContainer.innerHTML = html;
   });
+});
+
+fold(nounResultSetsOverTime, function (nounResultSet) {
+  var matchedNouns = nounResultSet.matchedNouns;
+  var query = nounResultSet.query;
 
   // Filter out suggestions that are equivalent to the terms already in the
   // action bar.
-  var validSuggestionTitles = filter(suggestions, function (suggestion) {
-    var title = suggestion[0].noun.serialized;
-    return title.toLowerCase() !== resultSet.query.toLowerCase();
+  var validSuggestionTitles = filter(matchedNouns, function (nounResult) {
+    var title = nounResult[0].noun.serialized;
+    return title.toLowerCase() !== query.toLowerCase();
   });
 
   // Take the first 100 results and use as the sample size for sorting by score..
