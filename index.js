@@ -200,7 +200,7 @@ function compareMatches(a, b) {
   return 0;
 }
 
-function compareSuggestions(a, b) {
+function compareGrepResults(a, b) {
   // Array.prototype.sort sorting function for ordering results.
 
   // a is less than b by some ordering criterion
@@ -471,6 +471,10 @@ var entryResultSetsOverTime = map(searchPatternPairsOverTime, function (pair) {
   return grep(pattern, ENTRIES, query('serialized'));
 });
 
+var topEntryResultSetsOverTime = map(entryResultSetsOverTime, function sortTopResultSets(resultSet) {
+  return sortFirstX(resultSet, 200, compareGrepResults);
+});
+
 var matchedNounSetsOverTime = map(nounResultSetsOverTime, function (nounResultSet) {
   return nounResultSet.matchedNouns;
 });
@@ -482,7 +486,7 @@ var actionSetsOverTime = map(matchedNounSetsOverTime, function (matchedNouns) {
 var actionBarElement = document.getElementById('action-bar');
 
 // TODO render entry results
-fold(entryResultSetsOverTime, function (entryResultSet) {
+fold(topEntryResultSetsOverTime, function (entryResultSet) {
   print(entryResultSet);
 });
 
@@ -550,7 +554,7 @@ fold(nounResultSetsOverTime, function (nounResultSet) {
   });
 
   // Take the first 100 results and use as the sample size for sorting by score..
-  var top100ValidSuggestions = sortFirstX(validSuggestionTitles, 100, compareSuggestions);
+  var top100ValidSuggestions = sortFirstX(validSuggestionTitles, 100, compareGrepResults);
   var cappedSuggestions = take(top100ValidSuggestions, 3);
 
   // Transform the limited set of suggestions into strings.
