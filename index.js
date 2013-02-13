@@ -248,16 +248,6 @@ function isLongerThan(reducible, length) {
   });
 }
 
-function foldWordsToLogicalAndPatternString(word, accumulated) {
-  // Express logical AND using lookaheads.
-  // See <http://ocpsoft.org/tutorials/regular-expressions/and-in-regex/>
-  return accumulated + '(?=.*' + word + ')';
-}
-
-function convertStringToCaseInsensitivePattern(string) {
-    return Pattern(string, 'i');
-}
-
 function convertQueryStringToPattern(queryString) {
   // Take a string representing search terms, escape it, prepare it and
   // turn it into a liberally matching pattern suitable for grep().
@@ -266,10 +256,11 @@ function convertQueryStringToPattern(queryString) {
   var trimmedString = queryString.trim();
   // Escape for RegExp safety.
   var escString = Pattern.escape(trimmedString);
-
-  var escWords = escString.split(/\s+/);
-  var patternString = fold(escWords, foldWordsToLogicalAndPatternString, '');
-  return fold(patternString, convertStringToCaseInsensitivePattern);
+  // Replace spaces between words with match pattern.
+  var preppedString = escString.replace(/\s+/, '[^\\s]* ');
+  // Create a RegExp pattern object via Pattern lib. Match globally and
+  // case-insentitively.
+  return Pattern(preppedString, 'i');
 }
 
 function createActionArticle(title, subtitle, className) {
@@ -587,7 +578,7 @@ if(navigator.mozApps) {
     btn.addEventListener('click', function() {
         navigator.mozApps.install(location.href + 'manifest.webapp');
     });
-
+    
     var req = navigator.mozApps.getSelf();
     req.onsuccess = function() {
         if(!req.result) {
