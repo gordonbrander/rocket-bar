@@ -443,11 +443,8 @@ var wordsVsEmptyOverTime = split(searchQueriesOverTime, function containsWord(po
   return reWord.test(possibleWord);
 });
 
-var searchObjectsOverTime = map(wordsVsEmptyOverTime[0], function (string) {
-  return {
-    query: string,
-    pattern: convertQueryStringToPattern(string)
-  };
+var searchPatternPairsOverTime = map(wordsVsEmptyOverTime[0], function (string) {
+  return [convertQueryStringToPattern(string), string];
 });
 
 // All queries that do not have words should be replaced by
@@ -460,12 +457,12 @@ var soqsOverTime = map(wordsVsEmptyOverTime[1], function (string) {
 // special `SOQ` value is used at as delimiter to indicate results for
 // new query. This can be used by writer to flush previous inputs and
 // start writing now ones.
-var resultSetsOverTime = map(searchObjectsOverTime, function(search) {
+var resultSetsOverTime = map(searchPatternPairsOverTime, function(pair) {
   // Search noun matches. Accesses closure variable NOUNS.
-  var nounMatches = grep(search.pattern, NOUNS, query("noun.serialized"));
+  var nounMatches = grep(pair[0], NOUNS, query("noun.serialized"));
 
   return {
-    query: search.query,
+    query: pair[1],
     suggestions: nounMatches,
     actions: expandNounMatchesToActions(nounMatches, actionsByType)
   };
