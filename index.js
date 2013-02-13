@@ -465,6 +465,12 @@ var nounResultSetsOverTime = map(searchPatternPairsOverTime, function (pair) {
   };
 });
 
+// Find all entry matches over time for the given query.
+var entryResultSetsOverTime = map(searchPatternPairsOverTime, function (pair) {
+  var pattern = pair[0];
+  return grep(pattern, ENTRIES, query('serialized'));
+});
+
 var matchedNounSetsOverTime = map(nounResultSetsOverTime, function (nounResultSet) {
   return nounResultSet.matchedNouns;
 });
@@ -474,6 +480,11 @@ var actionSetsOverTime = map(matchedNounSetsOverTime, function (matchedNouns) {
 });
 
 var actionBarElement = document.getElementById('action-bar');
+
+// TODO render entry results
+fold(entryResultSetsOverTime, function (entryResultSet) {
+  print(entryResultSet);
+});
 
 // Update action bar based on completion clicks.
 fold(clickedCompletionValuesOverTime, function (value) {
